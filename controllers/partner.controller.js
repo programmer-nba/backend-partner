@@ -206,6 +206,7 @@ module.exports.login = async (req,res) =>{
                     partner_iden:login.partner_iden, // เลขบัตรประชาชน
                     filecompany:login.filecompany,
                     logo:login.logo,
+                    signature:login.signature,
                 }
                 const secretKey = process.env.SECRET_KEY
                 const token = jwt.sign(payload,secretKey,{expiresIn:"10D"})
@@ -250,11 +251,12 @@ module.exports.me  = async (req,res)=>{
           partner_company_number: decodded.partner_company_number,
           partner_company_address: decodded.partner_company_address,
           partner_company_phone:decodded.partner_company_phone,  
-
+  
     
           partner_iden:decodded.partner_iden, // เลขบัตรประชาชน
           filecompany:decodded.filecompany,
           logo:decodded.logo,
+          signature:decodded.signature,
         }  
 
         return res.status(200).send({status:true,data:dataResponse});
