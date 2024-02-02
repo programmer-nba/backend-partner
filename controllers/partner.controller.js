@@ -25,7 +25,25 @@ module.exports.register = async (req, res) => {
           partner_iden_number: req.body.partner_iden_number,
           partner_address: req.body.partner_address,
         })
-        const add = await data.save()
+        const add = await data.save();
+         // ส่ง request ไปยัง API อื่นๆ โดยให้ url, method, headers และ data ตามที่ต้องการ
+         const apiResponse = await axios.post(`${process.env.API_OFFICE}/partners/register`, {
+          // ข้อมูลที่ต้องการส่งไปยัง API อื่นๆ
+          _id:add._id,
+          username: add.username,
+          password: add.password,
+          antecedent: add.antecedent,
+          partner_name: add.partner_name,
+          partner_phone: add.partner_phone,
+          partner_email: add.partner_email, 
+          partner_iden_number: add.partner_iden_number,
+          partner_address: add.partner_address 
+      }, {
+          headers: {
+              'Content-Type': 'application/json',
+             
+          },
+      });
 
         res.status(200).send({status:true,message:"คุณได้สร้างไอดี Partner เรียบร้อย",data:add});
       } catch (error) {
@@ -218,6 +236,7 @@ module.exports.me  = async (req,res)=>{
     }
 }
 
+
 //ดึงข้อมูลทั้งหมด
 module.exports.getall = async (req,res) =>{
     try{    
@@ -248,24 +267,37 @@ module.exports.getbyid = async (req,res) =>{
 module.exports.edit = async (req,res) =>{
     try{    
        
+
         const partner = await Partner.findOne({_id:req.params.id})
         if(!partner)
         {
             return res.status(404).send({status:false,message:"ไม่มีข้อมูล"})
         }
+        
+        if(partner.username != req.body.username){
+          const checkusername = await Partner.findOne({username:req.body.username})
+          if(checkusername)
+          {
+            res.status(409).send({status:false,message:"usernameนี้ใช้งานไม่ได้"});
+          } 
+        }
+        
+
         const data ={
-            username: req.body.username,
-            password: req.body.password,
-            antecedent:req.body.antecedent,
-            partner_name: req.body.partner_name,
-            partner_address: req.body.partner_address,
-            partner_phone: req.body.partner_phone,
-            partner_bookbank_name: req.body.partner_bookbank_name,
-            partner_bookbank_number: req.body.partner_bookbank_number,
-            partner_iden_number: req.body.partner_iden_number,
-            partner_company_name: req.body.partner_company_name,
-            partner_company_number: req.body.partner_company_number,
-            partner_company_address: req.body.partner_company_address,
+          username: req.body.username, 
+          password: (req.body.password !=undefined && req.body.password!=''? bcrypt.hashSync(req.body.password, 10):partner.password),
+          antecedent:req.body.antecedent,
+          partner_name: req.body.partner_name,
+          partner_phone: req.body.partner_phone,
+          partner_email:req.body.partner_email,
+          partner_iden_number: req.body.partner_iden_number,
+          partner_address: req.body.partner_address,
+          status_appover : (partner.status_appover =="ยังกรอกข้อมูลไม่ครบ"? "รออนุมัติ":partner.status_appover),
+          /// บริษัท
+          partner_company_name: req.body.partner_company_name,
+          partner_company_number: req.body.partner_company_number,
+          partner_company_address: req.body.partner_company_address,  
+          partner_company_phone:req.body.partner_company_phone
         }
         const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
         return res.status(200).send({status:true,data:edit,message:"แก้ไขข้อมูลสำเร็จ"})
@@ -273,6 +305,22 @@ module.exports.edit = async (req,res) =>{
         return res.status(500).send({status:false,error:error.message});
     }
 }
+
+module.exports.accept = async (req,res)=>{
+  try{
+    const partner = await Partner.findOne({_id:req.params.id})
+    if(!partner)
+    {
+      return res.status(404).send({status:false,message:"ไม่มีข้อมูล"})
+    }
+
+    const edit = await Partner.findByIdAndUpdate(req.params.id,{status_appover:"อนุมัติแล้ว"},{new:true});
+    return res.status(200).send({status:true,data:edit,message:"อัพเดทสถานะ"})
+  }catch(error){
+    return res.status(500).send({status:false,error:error.message});
+  }
+}
+
 
 //ลบข้อมูล partner
 module.exports.delete = async (req,res) =>{
@@ -296,45 +344,87 @@ const {
   deleteFile,
 } = require("../functions/uploadfilecreate");
 
-
-// เพิ่มรูปภาพธนาคาร
-module.exports.bankbook = async (req, res) => {
-    try {
-      let upload = multer({ storage: storage }).array("image", 20);
-      upload(req, res, async function (err) {
-        const reqFiles = [];
-        const result = [];
-        if (err) {
-          return res.status(500).send(err);
-        }
-        let image = '' // ตั้งตัวแปรรูป
-        //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
-        if (req.files) {
-          const url = req.protocol + "://" + req.get("host");
-          for (var i = 0; i < req.files.length; i++) {
-            const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-            result.push(src);
-          
-            //   reqFiles.push(url + "/public/" + req.files[i].filename);
-          }
-  
-          //ไฟล์รูป
-          image = reqFiles[0]
-        }
-      
-  
-        const data = {
-            partner_bookbank: image
-        }
-        const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
-        return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
-      });
-    } catch (error) {
-      return res.status(500).send({ status: false, error: error.message });
-    }
-};
+const storage = multer.diskStorage({
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+    //console.log(file.originalname);
+  },
+});
 // บัตรประจำตัวประชาชน
 module.exports.iden = async (req, res) => {
+  try {
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+      const reqFiles = [];
+      const result = [];
+      if (err) {
+        return res.status(500).send(err);
+      }
+      let image = '' // ตั้งตัวแปรรูป
+      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+      if (req.files) {
+        const url = req.protocol + "://" + req.get("host");
+        for (var i = 0; i < req.files.length; i++) {
+          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+          result.push(src);
+        
+          //   reqFiles.push(url + "/public/" + req.files[i].filename);
+        }
+
+        //ไฟล์รูป
+        image = reqFiles[0]
+      }
+    
+
+      const data = {
+          partner_iden: image
+      }
+      const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
+      return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
+    });
+  } catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
+};
+
+//ไฟล์เอกสาร
+module.exports.filecompany = async (req, res) => {
+    try {
+      let upload = multer({ storage: storage }).array("image", 20);
+      upload(req, res, async function (err) {
+        const reqFiles = [];
+        const result = [];
+        if (err) {
+          return res.status(500).send(err);
+        }
+        let image = '' // ตั้งตัวแปรรูป
+        //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+        if (req.files) {
+          const url = req.protocol + "://" + req.get("host");
+          for (var i = 0; i < req.files.length; i++) {
+            const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+            result.push(src);
+          
+            //   reqFiles.push(url + "/public/" + req.files[i].filename);
+          }
+  
+          //ไฟล์รูป
+          image = reqFiles[0]
+        }
+
+        const data = {
+          filecompany: image
+        }
+        const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
+        return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
+      });
+    } catch (error) {
+      return res.status(500).send({ status: false, error: error.message });
+    }
+};
+
+// เพิ่มรูปภาพโลโก้
+module.exports.logo = async (req, res) => {
     try {
       let upload = multer({ storage: storage }).array("image", 20);
       upload(req, res, async function (err) {
@@ -360,7 +450,7 @@ module.exports.iden = async (req, res) => {
       
   
         const data = {
-            partner_iden: image
+          logo: image
         }
         const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
         return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
@@ -369,40 +459,8 @@ module.exports.iden = async (req, res) => {
       return res.status(500).send({ status: false, error: error.message });
     }
 };
-// เพิ่มรูปภาพลายเซ็นต์ 
-module.exports.signature = async (req, res) => {
-    try {
-      let upload = multer({ storage: storage }).array("image", 20);
-      upload(req, res, async function (err) {
-        const reqFiles = [];
-        const result = [];
-        if (err) {
-          return res.status(500).send(err);
-        }
-        let image = '' // ตั้งตัวแปรรูป
-        //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
-        if (req.files) {
-          const url = req.protocol + "://" + req.get("host");
-          for (var i = 0; i < req.files.length; i++) {
-            const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-            result.push(src);
-          
-            //   reqFiles.push(url + "/public/" + req.files[i].filename);
-          }
-  
-          //ไฟล์รูป
-          image = reqFiles[0]
-        }
-      
-  
-        const data = {
-            signature: image
-        }
-        const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
-        return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
-      });
-    } catch (error) {
-      return res.status(500).send({ status: false, error: error.message });
-    }
-};
+
+
+
+
 

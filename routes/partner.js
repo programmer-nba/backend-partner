@@ -18,10 +18,14 @@ router.put('/:id',Auth.all,Partner.edit)
 // ลบข้อมูล partner
 router.delete('/:id',Auth.all,Partner.delete)
 
-router.put("/bankbook/:id",Auth.all,Partner.bankbook);
-router.put("/idcard/:id",Auth.all,Partner.iden);
-router.put("/signature/:id",Auth.all,Partner.signature);
+router.put("/accept/:id",Partner.accept);
 
+
+
+
+router.put("/idcard/:id",Auth.all,Partner.iden);
+router.put("/filecompany/:id",Auth.all,Partner.filecompany);
+router.put("/logo/:id",Auth.all,Partner.logo);
 
 /// ส่ง opt 
 router.get("/sendotp/:id",Partner.sendotp);

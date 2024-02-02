@@ -19,12 +19,16 @@ const partnerSchema = new mongoose.Schema(
 
 
     // นิติบุคคล 
-    partner_iden: { type: String, required: false, default: "" }, // เลขบัตรประชาชน
+    
 
     /// บริษัท
     partner_company_name: { type: String, required: false, default: "" },
     partner_company_number: { type: String, required: false, default: "" },
-    partner_company_address: { type: String, required: false, default: "" },  
+    partner_company_address: { type: String, required: false, default: "" },
+    partner_company_phone:{type:String,default:""},  
+
+    
+    partner_iden: { type: String, required: false, default: "" }, // เลขบัตรประชาชน
     filecompany:{type:String,default:""},
     logo:{type:String,default:""},
     // ลายเซ็นต์
