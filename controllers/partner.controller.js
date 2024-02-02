@@ -228,6 +228,18 @@ module.exports.me  = async (req,res)=>{
           position:"partner",
           status_otp:decodded.status_opt,
           status_appover : decodded.status_appover,
+
+          partner_iden_number: decodded.partner_iden_number,
+          partner_address: decodded.partner_address,
+          partner_company_name:decodded.partner_company_name,
+          partner_company_number: decodded.partner_company_number,
+          partner_company_address: decodded.partner_company_address,
+          partner_company_phone:decodded.partner_company_phone,  
+
+    
+          partner_iden:decodded.partner_iden, // เลขบัตรประชาชน
+          filecompany:decodded.filecompany,
+          logo:decodded.logo,
         }  
 
         return res.status(200).send({status:true,data:dataResponse});
@@ -460,6 +472,49 @@ module.exports.logo = async (req, res) => {
     }
 };
 
+// เพิ่มรูปภาพโลโก้
+module.exports.logo = async (req, res) => {
+  try {
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+      const reqFiles = [];
+      const result = [];
+      if (err) {
+        return res.status(500).send(err);
+      }
+      let image = '' // ตั้งตัวแปรรูป
+      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+      if (req.files) {
+        const url = req.protocol + "://" + req.get("host");
+        for (var i = 0; i < req.files.length; i++) {
+          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+          result.push(src);
+        
+          //   reqFiles.push(url + "/public/" + req.files[i].filename);
+        }
+
+        //ไฟล์รูป
+        image = reqFiles[0]
+      }
+    
+      const partner = await Partner.findById(req.params.id)
+      if(!partner)
+        {
+            res.status(400).send({status:false,message:"ไม่มีข้อมูล"});
+        }    
+      const data = {
+        name: req.body.name,
+        role: req.body.role,
+        position: req.body.position,
+        sign: req.body.sign
+      }
+      const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
+      return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
+    });
+  } catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
+};
 
 
 
