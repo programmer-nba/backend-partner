@@ -125,6 +125,11 @@ module.exports.check = async (req,res)=>{
           //ตรวจสอบ OTP
           if (response.data.result.status) {
             const edit = await Partner.findByIdAndUpdate(id,{status_opt:true},{new:true});
+            const apiResponse = await axios.put(`${process.env.API_OFFICE}partners/OTP/${id}`, {status_opt:true}, {
+              headers: {
+                  'Content-Type': 'application/json',
+            },
+            }).catch((error)=>{return console.log(error);});
             return res
               .status(200)
               .send({ status: true, message: "ยืนยัน OTP สำเร็จ" });
@@ -322,6 +327,28 @@ module.exports.edit = async (req,res) =>{
           partner_company_phone:req.body.partner_company_phone
         }
         const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
+         // ส่ง request ไปยัง API อื่นๆ โดยให้ url, method, headers และ data ตามที่ต้องการ
+         const apiResponse = await axios.put(`${process.env.API_OFFICE}/partners/wait/${req.params.id}`, {
+          // ข้อมูลที่ต้องการส่งไปยัง API อื่นๆ
+          username: req.body.username, 
+          password: (req.body.password !=undefined && req.body.password!=''? bcrypt.hashSync(req.body.password, 10):partner.password),
+          antecedent:req.body.antecedent,
+          partner_name: req.body.partner_name,
+          partner_phone: req.body.partner_phone,
+          partner_email:req.body.partner_email,
+          partner_iden_number: req.body.partner_iden_number,
+          partner_address: req.body.partner_address,
+          status_appover : (partner.status_appover =="ยังกรอกข้อมูลไม่ครบ"? "รออนุมัติ":partner.status_appover),
+          /// บริษัท
+          partner_company_name: req.body.partner_company_name,
+          partner_company_number: req.body.partner_company_number,
+          partner_company_address: req.body.partner_company_address,  
+          partner_company_phone:req.body.partner_company_phone
+      }, {
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      }).catch((error)=>{return console.log(error) });
         return res.status(200).send({status:true,data:edit,message:"แก้ไขข้อมูลสำเร็จ"})
     }catch (error) {
         return res.status(500).send({status:false,error:error.message});
@@ -539,6 +566,11 @@ module.exports.addsignature = async (req, res) => {
       }
       partner.signature.push(data);
       const edit = await Partner.findByIdAndUpdate(req.params.id,{signature:partner.signature},{new:true})
+      const apiResponse = await axios.put(`${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`, {signature:partner.signature}, {
+        headers: {
+            'Content-Type': 'application/json',
+      },
+      }).catch((error)=>{return console.log(error);});
       return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
     });
   } catch (error) {
@@ -546,6 +578,84 @@ module.exports.addsignature = async (req, res) => {
   }
 };
 
+// แก้รูปภาพลายเซ็นต์
+module.exports.editsignature  = async (req, res) => {
+  try {
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+      const reqFiles = [];
+      const result = [];
+      if (err) {
+        return res.status(500).send(err);
+      }
+      let image = '' // ตั้งตัวแปรรูป
+      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+      if (req.files) {
+        const url = req.protocol + "://" + req.get("host");
+        for (var i = 0; i < req.files.length; i++) {
+          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+          result.push(src);
+        
+          //   reqFiles.push(url + "/public/" + req.files[i].filename);
+        }
+
+        //ไฟล์รูป
+        image = reqFiles[0]
+      }
+    
+      const partner = await Partner.findById(req.params.id)
+      if(!partner)
+      {
+            res.status(400).send({status:false,message:"ไม่มีข้อมูล"});
+      }
+      const signatureid = req.body.signatureid;
+      partner.signature = partner.signature.filter(item => item._id != signatureid)
+  
+      const data = {
+        name: req.body.name,
+        role: req.body.role,
+        position: req.body.position,
+        sign: image
+      }
+      partner.signature.push(data);
+      const edit = await Partner.findByIdAndUpdate(req.params.id,{signature:partner.signature},{new:true})
+      const apiResponse = await axios.put(`${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`, {signature:partner.signature}, {
+        headers: {
+            'Content-Type': 'application/json',
+      },
+      }).catch((error)=>{return console.log(error);});
+      return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
+    });
+  } catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
+};
+
+//ลบลายเซ็นต์
+module.exports.deletesignature = async (req,res)=>{
+  try {
+      const id = req.params.id;
+      const signatureid = req.body.signatureid;
+      const partner = await Partner.findById(req.params.id)
+      if(!partner)
+      {
+            res.status(400).send({status:false,message:"ไม่มีข้อมูล"});
+      }
+      
+      partner.signature = partner.signature.filter(item => item._id != signatureid)
+
+      const edit = await Partner.findByIdAndUpdate(req.params.id,{signature:partner.signature},{new:true})
+      const apiResponse = await axios.put(`${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`, {signature:partner.signature}, {
+        headers: {
+            'Content-Type': 'application/json',
+      },
+      }).catch((error)=>{return console.log(error);});
+      return res.status(200).send({status: true,message: "คุณได้ลบภาพลายเซ็นแล้ว",data: edit});
+  }
+  catch(error){
+    return res.status(500).send({ status: false, error: error.message });
+  }
+}
 
 
 

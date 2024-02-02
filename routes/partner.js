@@ -30,6 +30,7 @@ router.get("/sendotp/:id",Partner.sendotp);
 router.put("/check/:id",Partner.check)
 
 // ลายเซ็นต์
-router.put("/addsignature/:id",Partner.addsignature)
-
+router.put("/addsignature/:id",Partner.addsignature);
+router.put("/editsignature/:id",Partner.editsignature);
+router.put("/deletesignature/:id",Partner.deletesignature);
 module.exports = router;
