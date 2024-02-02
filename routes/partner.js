@@ -10,9 +10,9 @@ router.post('/register',Partner.register)
 router.post ('/login',Partner.login)
 router.get("/me",Partner.me)
 //ดึงข้อมูลทั้งหมด
-router.get('/',Auth.all,Partner.getall)
+router.get('/',Partner.getall)
 //ดึงข้อมูล by id
-router.get('/byid/:id',Auth.all,Partner.getbyid)
+router.get('/byid/:id',Partner.getbyid)
 // แก้ไขข้อมูล partner 
 router.put('/:id',Auth.all,Partner.edit)
 // ลบข้อมูล partner

@@ -17,35 +17,23 @@ const partnerSchema = new mongoose.Schema(
     status_opt :{ type: Boolean, default: false },
     status_appover :{type:String,default:"ยังกรอกข้อมูลไม่ครบ"},
 
-    
+
     // นิติบุคคล 
-    partner_iden: { type: String, required: false, default: "" }, // ภาพบัญชี
+    partner_iden: { type: String, required: false, default: "" }, // เลขบัตรประชาชน
+
     /// บริษัท
     partner_company_name: { type: String, required: false, default: "" },
     partner_company_number: { type: String, required: false, default: "" },
     partner_company_address: { type: String, required: false, default: "" },  
     filecompany:{type:String,default:""},
     logo:{type:String,default:""},
-
-
-    
-   
-
+    // ลายเซ็นต์
     signature:{type:[{
       name: {type:String},
       role: {type:String},
       position: {type:String},
       sign: {type:String}
     }],default:null},
-
-
-   
-    
-    
-    statusready :{ type: Boolean, default: false },
-    statusdetail:{type:String,default:"ข้อมูลยังไม่ครบ"},
-
-
     partner_timestamp: { type: Array, required: false, default: [] },
   },
   {timestamps: true}
