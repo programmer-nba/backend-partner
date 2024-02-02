@@ -21,8 +21,6 @@ router.delete('/:id',Auth.all,Partner.delete)
 router.put("/accept/:id",Partner.accept);
 
 
-
-
 router.put("/idcard/:id",Auth.all,Partner.iden);
 router.put("/filecompany/:id",Auth.all,Partner.filecompany);
 router.put("/logo/:id",Auth.all,Partner.logo);
@@ -30,4 +28,8 @@ router.put("/logo/:id",Auth.all,Partner.logo);
 /// ส่ง opt 
 router.get("/sendotp/:id",Partner.sendotp);
 router.put("/check/:id",Partner.check)
+
+// ลายเซ็นต์
+router.put("/addsignature/:id",Partner.addsignature)
+
 module.exports = router;

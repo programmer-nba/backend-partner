@@ -190,6 +190,17 @@ module.exports.login = async (req,res) =>{
                     position:"partner",
                     status_otp:login.status_opt,
                     status_appover : login.status_appover,
+                    status_otp:login.status_opt,
+                    status_appover : login.status_appover,
+                    partner_iden_number: login.partner_iden_number,
+                    partner_address: login.partner_address,
+                    partner_company_name:login.partner_company_name,
+                    partner_company_number: login.partner_company_number,
+                    partner_company_address: login.partner_company_address,
+                    partner_company_phone:login.partner_company_phone,  
+                    partner_iden:login.partner_iden, // เลขบัตรประชาชน
+                    filecompany:login.filecompany,
+                    logo:login.logo,
                 }
                 const secretKey = process.env.SECRET_KEY
                 const token = jwt.sign(payload,secretKey,{expiresIn:"10D"})
@@ -228,7 +239,6 @@ module.exports.me  = async (req,res)=>{
           position:"partner",
           status_otp:decodded.status_opt,
           status_appover : decodded.status_appover,
-
           partner_iden_number: decodded.partner_iden_number,
           partner_address: decodded.partner_address,
           partner_company_name:decodded.partner_company_name,
@@ -386,12 +396,17 @@ module.exports.iden = async (req, res) => {
         //ไฟล์รูป
         image = reqFiles[0]
       }
-    
-
       const data = {
           partner_iden: image
       }
       const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
+      ///
+      const apiResponse = await axios.put(`${process.env.API_OFFICE}/partners/upIden/${req.params.id}`, {partner_iden: image}, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).catch((error)=>{return error});
+    ////
       return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
     });
   } catch (error) {
@@ -404,6 +419,7 @@ module.exports.filecompany = async (req, res) => {
     try {
       let upload = multer({ storage: storage }).array("image", 20);
       upload(req, res, async function (err) {
+       
         const reqFiles = [];
         const result = [];
         if (err) {
@@ -427,7 +443,14 @@ module.exports.filecompany = async (req, res) => {
         const data = {
           filecompany: image
         }
+       
         const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
+        const apiResponse = await axios.put(`${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`, {filecompany: image}, {
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      }).catch((error)=>{return error})
+      
         return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
       });
     } catch (error) {
@@ -465,6 +488,11 @@ module.exports.logo = async (req, res) => {
           logo: image
         }
         const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
+        const apiResponse = await axios.put(`${process.env.API_OFFICE}/partners/upLogo/${req.params.id}`, {logo: image}, {
+          headers: {
+              'Content-Type': 'application/json',
+          },
+        }).catch((error)=>{return error});
         return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
       });
     } catch (error) {
@@ -472,8 +500,8 @@ module.exports.logo = async (req, res) => {
     }
 };
 
-// เพิ่มรูปภาพโลโก้
-module.exports.logo = async (req, res) => {
+// เพิ่มรูปภาพลายเซ็นต์
+module.exports.addsignature = async (req, res) => {
   try {
     let upload = multer({ storage: storage }).array("image", 20);
     upload(req, res, async function (err) {
@@ -499,22 +527,26 @@ module.exports.logo = async (req, res) => {
     
       const partner = await Partner.findById(req.params.id)
       if(!partner)
-        {
+      {
             res.status(400).send({status:false,message:"ไม่มีข้อมูล"});
-        }    
+      }
+
       const data = {
         name: req.body.name,
         role: req.body.role,
         position: req.body.position,
-        sign: req.body.sign
+        sign: image
       }
-      const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
+      partner.signature.push(data);
+      const edit = await Partner.findByIdAndUpdate(req.params.id,{signature:partner.signature},{new:true})
       return res.status(200).send({status: true,message: "คุณได้รูปภาพเรียบร้อยแล้ว",data: edit});
     });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
 };
+
+
 
 
 
