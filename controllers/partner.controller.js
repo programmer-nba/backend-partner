@@ -2,6 +2,8 @@ const Partner = require('../models/partner.schema')
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken");
 //เรียกใช้ function เช็คชื่อซ้ำ
+const axios = require('axios');
+
 
 //สร้างไอดี Partner
 module.exports.register = async (req, res) => {
@@ -14,29 +16,124 @@ module.exports.register = async (req, res) => {
         }        
 
         const data = new Partner({
-            username: req.body.username,
-            password: req.body.password,
-            partner_name: req.body.partner_name,
-            partner_address: req.body.partner_address,
-            partner_phone: req.body.partner_phone,
-            partner_status: false,
-            partner_status_promiss: "รอตรวจสอบ",
-            partner_bookbank: "", 
-            partner_bookbank_name: req.body.partner_bookbank_name,
-            partner_bookbank_number: req.body.partner_bookbank_number,
-            partner_iden: "", // images
-            partner_iden_number: req.body.partner_iden_number,
-            partner_company_name: req.body.partner_company_name,
-            partner_company_number: req.body.partner_company_number,
-            partner_company_address: req.body.partner_company_address,
-            signature:"",
+          username: req.body.username, 
+          password: bcrypt.hashSync(req.body.password,10),
+          antecedent:req.body.antecedent,
+          partner_name: req.body.partner_name,
+          partner_phone: req.body.partner_phone,
+          partner_email:req.body.partner_email,
+          partner_iden_number: req.body.partner_iden_number,
+          partner_address: req.body.partner_address,
         })
         const add = await data.save()
+
         res.status(200).send({status:true,message:"คุณได้สร้างไอดี Partner เรียบร้อย",data:add});
       } catch (error) {
         return res.status(500).send({status:false,error:error.message});
-      }    
+      } 
+         
 };
+
+// opt
+module.exports.sendotp = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const partner = await Partner.findById(id);
+    if(!partner)
+    {
+      return res.status(404).send({status:false,message:"ไม่มีข้อมูล"})
+    }
+    const config = {
+      method: "post",
+      url: `${process.env.SMS_URL}/otp-send`,
+      headers: {
+        "Content-Type": "application/json",
+        api_key: `${process.env.SMS_API_KEY}`,
+        secret_key: `${process.env.SMS_SECRET_KEY}`,
+      },
+      data: JSON.stringify({
+        project_key: `${process.env.SMS_PROJECT_OTP}`,
+        phone: `${partner?.partner_phone}`,
+      }),
+    };
+    // ให้ใช้ await เพื่อรอให้ axios ทำงานเสร็จก่อนที่จะดำเนินการต่อ
+    const result = await axios(config);
+
+    if (result.data.code === "000") {
+      return res.status(200).send({ status: true, result: result.data.result });
+    } else {
+      return res.status(400).send({ status: false, ...result.data });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ status: false, error: error.message });
+  }
+};
+
+module.exports.check = async (req,res)=>{
+  try{
+    const id = req.params.id;
+    const partner = await Partner.findById(id);
+    if(!partner)
+    {
+      return res.status(404).send({status:false,message:"ไม่มีข้อมูล"})
+    }
+    
+    const config = {
+      method: "post",
+      url: "https://portal-otp.smsmkt.com/api/otp-validate",
+      headers: {
+        "Content-Type": "application/json",
+        api_key: `${process.env.SMS_API_KEY}`,
+        secret_key: `${process.env.SMS_SECRET_KEY}`,
+      },
+      data: JSON.stringify({
+        token: `${req.body.token}`,
+        otp_code: `${req.body.otp_code}`,
+      }),
+    };
+    await axios(config)
+      .then(async(response)=>{
+        console.log(response.data);
+        //หมดอายุ
+        if (response.data.code === "5000") {
+          return res.status(400).send({
+            status: false,
+            message: "OTP นี้หมดอายุแล้ว กรุณาทำรายการใหม่",
+          });
+        }
+
+        if (response.data.code === "000") {
+          //ตรวจสอบ OTP
+          if (response.data.result.status) {
+            const edit = await Partner.findByIdAndUpdate(id,{status_opt:true},{new:true});
+            return res
+              .status(200)
+              .send({ status: true, message: "ยืนยัน OTP สำเร็จ" });
+
+          } else {
+            return res.status(400).send({
+              status: false,
+              message: "รหัส OTP ไม่ถูกต้องกรุณาตรวจสอบอีกครั้ง",
+            });
+          }
+        } else {
+          return res.status(400).send({ status: false, ...response.data });
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+        return res.status(400).send({ status: false, ...error });
+      });
+  } catch(error)
+  {
+    return res.status(500).send({ status: false, error: error.message });
+  }
+}
+
+
+
+
 
 //login
 module.exports.login = async (req,res) =>{
@@ -58,7 +155,9 @@ module.exports.login = async (req,res) =>{
         const login = await Partner.findOne({username:username})
         if(login)
         {
+
             //เช็ค password
+            console.log(password);
             bcryptpassword = await bcrypt.compare(password,login.password)
             if(bcryptpassword)
             {
@@ -66,10 +165,11 @@ module.exports.login = async (req,res) =>{
                 const payload = {
                     _id:login._id,
                     username:login.username,
-                    firstname:login.firstname,
-                    lastname:login.lastname,
-                    name:login.name,
-                    position:login.position
+                    partner_name: login.partner_name,
+                    partner_phone: login.partner_phone,
+                    partner_email:login.partner_email,
+                    position:"partner",
+                    status_otp:login.status_opt
                 }
                 const secretKey = process.env.SECRET_KEY
                 const token = jwt.sign(payload,secretKey,{expiresIn:"10D"})
@@ -89,21 +189,26 @@ module.exports.login = async (req,res) =>{
     }
 }
 //getme
-module.exports.me  =async (req,res)=>{
+module.exports.me  = async (req,res)=>{
     try{
         const token = req.headers['token'];
+      
         if(!token){
             return res.status(403).send({status:false,message:'Not authorized'});
         }
-        const decodded =jwt.verify(token,token,process.env.SECRET_KEY)
+      
+        const decodded =jwt.verify(token,process.env.SECRET_KEY)
+        console.log(decodded);
         const dataResponse = {
-            _id:decodded._id,
-            username:decodded.username,
-            firstname:decodded.firstname,
-            lastname:decodded.lastname,
-            nickname:decodded.nickname,
-            position:decodded.position
+          _id:decodded._id,
+          username:decodded.username,
+          partner_name: decodded.partner_name,
+          partner_phone: decodded.partner_phone,
+          partner_email:decodded.partner_email,
+          position:"partner",
+          status_otp:decodded.status_opt
         }  
+
         return res.status(200).send({status:true,data:dataResponse});
     } catch(error){
         return res.status(500).send({status:false,error:error.message});
@@ -148,18 +253,16 @@ module.exports.edit = async (req,res) =>{
         const data ={
             username: req.body.username,
             password: req.body.password,
+            antecedent:req.body.antecedent,
             partner_name: req.body.partner_name,
             partner_address: req.body.partner_address,
             partner_phone: req.body.partner_phone,
-            partner_bookbank: "", 
             partner_bookbank_name: req.body.partner_bookbank_name,
             partner_bookbank_number: req.body.partner_bookbank_number,
-            partner_iden: "", // images
             partner_iden_number: req.body.partner_iden_number,
             partner_company_name: req.body.partner_company_name,
             partner_company_number: req.body.partner_company_number,
             partner_company_address: req.body.partner_company_address,
-            signature:"",
         }
         const edit = await Partner.findByIdAndUpdate(req.params.id,data,{new:true})
         return res.status(200).send({status:true,data:edit,message:"แก้ไขข้อมูลสำเร็จ"})
@@ -189,6 +292,7 @@ const {
   uploadFileCreate,
   deleteFile,
 } = require("../functions/uploadfilecreate");
+
 
 // เพิ่มรูปภาพธนาคาร
 module.exports.bankbook = async (req, res) => {
@@ -225,7 +329,7 @@ module.exports.bankbook = async (req, res) => {
     } catch (error) {
       return res.status(500).send({ status: false, error: error.message });
     }
-  };
+};
 // บัตรประจำตัวประชาชน
 module.exports.iden = async (req, res) => {
     try {
@@ -261,9 +365,9 @@ module.exports.iden = async (req, res) => {
     } catch (error) {
       return res.status(500).send({ status: false, error: error.message });
     }
-  };
+};
 // เพิ่มรูปภาพลายเซ็นต์ 
-module.exports.iden = async (req, res) => {
+module.exports.signature = async (req, res) => {
     try {
       let upload = multer({ storage: storage }).array("image", 20);
       upload(req, res, async function (err) {
@@ -297,4 +401,5 @@ module.exports.iden = async (req, res) => {
     } catch (error) {
       return res.status(500).send({ status: false, error: error.message });
     }
-  };
+};
+

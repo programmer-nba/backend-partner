@@ -18,5 +18,12 @@ router.put('/:id',Auth.all,Partner.edit)
 // ลบข้อมูล partner
 router.delete('/:id',Auth.all,Partner.delete)
 
+router.put("/bankbook/:id",Auth.all,Partner.bankbook);
+router.put("/idcard/:id",Auth.all,Partner.iden);
+router.put("/signature/:id",Auth.all,Partner.signature);
 
+
+/// ส่ง opt 
+router.get("/sendotp/:id",Partner.sendotp);
+router.put("/check/:id",Partner.check)
 module.exports = router;
