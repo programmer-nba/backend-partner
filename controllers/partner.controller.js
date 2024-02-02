@@ -162,6 +162,7 @@ module.exports.login = async (req,res) =>{
             if(bcryptpassword)
             {
                 //สร้าง signaturn
+                console.log(login)
                 const payload = {
                     _id:login._id,
                     username:login.username,
@@ -169,7 +170,8 @@ module.exports.login = async (req,res) =>{
                     partner_phone: login.partner_phone,
                     partner_email:login.partner_email,
                     position:"partner",
-                    status_otp:login.status_opt
+                    status_otp:login.status_opt,
+                    status_appover : login.status_appover,
                 }
                 const secretKey = process.env.SECRET_KEY
                 const token = jwt.sign(payload,secretKey,{expiresIn:"10D"})
@@ -206,7 +208,8 @@ module.exports.me  = async (req,res)=>{
           partner_phone: decodded.partner_phone,
           partner_email:decodded.partner_email,
           position:"partner",
-          status_otp:decodded.status_opt
+          status_otp:decodded.status_opt,
+          status_appover : decodded.status_appover,
         }  
 
         return res.status(200).send({status:true,data:dataResponse});

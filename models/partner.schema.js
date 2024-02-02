@@ -15,7 +15,9 @@ const partnerSchema = new mongoose.Schema(
     partner_address: { type: String, required: true },
     //otp
     status_opt :{ type: Boolean, default: false },
+    status_appover :{type:String,default:"ยังกรอกข้อมูลไม่ครบ"},
 
+    
     // นิติบุคคล 
     partner_iden: { type: String, required: false, default: "" }, // ภาพบัญชี
     /// บริษัท
@@ -25,14 +27,9 @@ const partnerSchema = new mongoose.Schema(
     filecompany:{type:String,default:""},
     logo:{type:String,default:""},
 
+
     
-    //สถานะ
-    partner_status: { type: Boolean, required: false, default: false }, 
-    partner_status_promiss: {
-      type: String,
-      required: false,
-      default: "รอตรวจสอบ",
-    }, 
+   
 
     signature:{type:[{
       name: {type:String},
