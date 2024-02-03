@@ -189,6 +189,7 @@ module.exports.login = async (req,res) =>{
                 const payload = {
                     _id:login._id,
                     username:login.username,
+                    antecedent:login.antecedent,
                     partner_name: login.partner_name,
                     partner_phone: login.partner_phone,
                     partner_email:login.partner_email,
@@ -239,6 +240,7 @@ module.exports.me  = async (req,res)=>{
         const dataResponse = {
           _id:decodded._id,
           username:decodded.username,
+          antecedent:decodded.antecedent,
           partner_name: decodded.partner_name,
           partner_phone: decodded.partner_phone,
           partner_email:decodded.partner_email,
@@ -528,6 +530,7 @@ module.exports.logo = async (req, res) => {
       return res.status(500).send({ status: false, error: error.message });
     }
 };
+
 
 // เพิ่มรูปภาพลายเซ็นต์
 module.exports.addsignature = async (req, res) => {
