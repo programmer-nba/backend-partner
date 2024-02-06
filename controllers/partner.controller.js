@@ -802,18 +802,18 @@ module.exports.WaitForApproval = async (req, res) => {
     updateStatus.status_appover = "รออนุมัติ";
     await updateStatus.save();
     const apiResponse = await axios
-      .put(
-        `${process.env.API_OFFICE}/partners/wait/${req.params.id}`,
-        {  },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .catch((error) => {
-        return console.log(error);
-      });
+    .put(
+      `${process.env.API_OFFICE}/partners/wait/${req.params.id}`,
+      { },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    .catch((error) => {
+      return error;
+    });
     return res.status(200).send({
       status: true,
       message: "เพิ่มข้อมูล รอ อนุมัติสำเร็จ",
@@ -823,4 +823,3 @@ module.exports.WaitForApproval = async (req, res) => {
     return res.status(500).send({ message: error.message, status: false });
   }
 };
-
