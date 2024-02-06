@@ -33,4 +33,8 @@ router.put("/check/:id",Partner.check)
 router.put("/addsignature/:id",Partner.addsignature);
 router.put("/editsignature/:id",Partner.editsignature);
 router.put("/deletesignature/:id",Partner.deletesignature);
+
+
+//เพ่ิมสถาณะ
+router.put("/WaitForApproval/:id",Partner.WaitForApproval)
 module.exports = router;
