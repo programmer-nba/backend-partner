@@ -25,6 +25,10 @@ module.exports.register = async (req, res) => {
       partner_email: req.body.partner_email,
       partner_iden_number: req.body.partner_iden_number,
       partner_address: req.body.partner_address,
+      partner_province: req.body.partner_province,
+      partner_amphure: req.body.partner_amphure,
+      partner_district: req.body.partner_district,
+      partner_postcode: req.body.partner_postcode,
     });
     const add = await data.save();
     // ส่ง request ไปยัง API อื่นๆ โดยให้ url, method, headers และ data ตามที่ต้องการ
@@ -41,6 +45,10 @@ module.exports.register = async (req, res) => {
         partner_email: add.partner_email,
         partner_iden_number: add.partner_iden_number,
         partner_address: add.partner_address,
+        partner_province: add.partner_province,
+        partner_amphure: add.partner_amphure,
+        partner_district: add.partner_district,
+        partner_postcode: add.partner_postcode,
       },
       {
         headers: {
@@ -336,7 +344,8 @@ module.exports.edit = async (req, res) => {
       partner_address: req.body.partner_address,
       partner_district: req.body.partner_district, //ตำบล
       partner_amphure: req.body.partner_amphure, //อำเภอ
-      partner_province: req.body.partner_amphure, //จังหวัด
+      partner_province: req.body.partner_province, //จังหวัด
+      partner_postcode: req.body.partner_postcode, //รหัสไปรษณีย์
       /// บริษัท
       partner_company_name: req.body.partner_company_name,
       partner_company_number: req.body.partner_company_number,
@@ -344,6 +353,7 @@ module.exports.edit = async (req, res) => {
       partner_company_district: req.body.partner_company_district, //ตำบล
       partner_company_amphure: req.body.partner_company_amphure, //อำเภอ
       partner_company_province: req.body.partner_company_province, //จังหวัด
+      partner_company_postcode: req.body.partner_company_postcode, //รหัสไปรษณีย์
       partner_company_phone: req.body.partner_company_phone,
     };
     const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
@@ -368,7 +378,8 @@ module.exports.edit = async (req, res) => {
           partner_address: req.body.partner_address,
           partner_district: req.body.partner_district, //ตำบล
           partner_amphure: req.body.partner_amphure, //อำเภอ
-          partner_province: req.body.partner_amphure, //จังหวัด
+          partner_province: req.body.partner_province, //จังหวัด
+          partner_postcode: req.body.partner_postcode, //รหัสไปรษณีย์
 
           /// บริษัท
           partner_company_name: req.body.partner_company_name,
@@ -377,6 +388,7 @@ module.exports.edit = async (req, res) => {
           partner_company_district: req.body.partner_company_district, //ตำบล
           partner_company_amphure: req.body.partner_company_amphure, //อำเภอ
           partner_company_province: req.body.partner_company_province, //จังหวัด
+          partner_company_postcode: req.body.partner_company_postcode, //รหัสไปรษณีย์
           partner_company_phone: req.body.partner_company_phone,
         },
         {
