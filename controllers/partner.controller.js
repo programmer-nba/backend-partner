@@ -835,3 +835,29 @@ module.exports.WaitForApproval = async (req, res) => {
     return res.status(500).send({ message: error.message, status: false });
   }
 };
+
+
+
+//ส่งประเภทสัญญา
+module.exports.sendtypecontract = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const partner = await Partner.findById(id);
+    if (!partner) {
+      return res.status(404).send({ status: false, message: "ไม่มีข้อมูล" });
+    }
+    const data = {
+      contract_type: req.body.contract_type,
+    }
+    const edit = await Partner.findByIdAndUpdate(id,data,{new:true});
+    return res.status(200).send({
+      status: true,
+      message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+      data: edit,
+    });
+  }
+  catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
+}
+

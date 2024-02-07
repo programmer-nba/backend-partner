@@ -19,6 +19,7 @@ const partnerSchema = new mongoose.Schema(
     partner_amphure: { type: String, required: false }, //อำเภอ
     partner_province: { type: String, required: false }, //จังหวัด
     partner_postcode: { type: String, required: false }, //รหัสไปรษณีย์
+    contract_type: { type: String, default: "", required: false },
 
     //otp
     status_opt: { type: Boolean, default: false },

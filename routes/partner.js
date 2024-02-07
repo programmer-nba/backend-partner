@@ -37,4 +37,5 @@ router.put("/deletesignature/:id",Partner.deletesignature);
 
 //เพ่ิมสถาณะ
 router.put("/WaitForApproval/:id",Partner.WaitForApproval)
+router.put("/sendtypecontract/:id",Partner.sendtypecontract);
 module.exports = router;
