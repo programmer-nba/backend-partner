@@ -29,6 +29,9 @@ const prefix = '/v1/Backend-Partner'
 app.use(prefix+'/', require('./routes/index'));
 //ข้อมูล admin
 app.use(prefix+'/partner',require('./routes/partner'));
+//ข้อมูลคู่ค้า
+app.use(prefix+'/dealer',require('./routes/dealer'));
+
 
 
 app.use((req, res, next) => {
