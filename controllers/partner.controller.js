@@ -11,9 +11,7 @@ module.exports.register = async (req, res) => {
       username: req.body.username,
     });
     if (checkusername) {
-      res
-        .status(409)
-        .send({ status: false, message: "usernameนี้ใช้งานไม่ได้" });
+      return res.status(409).send({ status: false, message: "usernameนี้ใช้งานไม่ได้" });
     }
 
     const data = new Partner({
@@ -815,7 +813,7 @@ module.exports.WaitForApproval = async (req, res) => {
     await updateStatus.save();
     const apiResponse = await axios
     .put(
-      `${process.env.API_OFFICE}/partners/wait/${req.params.id}`,
+      `${process.env.API_OFFICE}/partners/updateStatus/${req.params.id}`,
       { },
       {
         headers: {
