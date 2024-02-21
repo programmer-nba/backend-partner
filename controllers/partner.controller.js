@@ -54,14 +54,22 @@ module.exports.register = async (req, res) => {
           "Content-Type": "application/json",
         },
       }
-    ).catch((error) => {return console.log(error)});
+    );
+    if(apiResponse && add){
+      return res.status(200).send({
+        status: true,
+        message: "คุณได้สร้างไอดี Partner เรียบร้อย",
+        data: add,
+        office:apiResponse
+      });
+    }else{
+      return res.status(200).send({
+        status: false,
+        message: "ไม่สามารถสร้างไอดี Partner ได้",
+      });
+    }
     
-    return res.status(200).send({
-      status: true,
-      message: "คุณได้สร้างไอดี Partner เรียบร้อย",
-      data: add,
-      office:apiResponse
-    });
+    
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
