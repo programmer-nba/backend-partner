@@ -30,6 +30,7 @@ module.exports.register = async (req, res) => {
     });
     const add = await data.save();
     // ส่ง request ไปยัง API อื่นๆ โดยให้ url, method, headers และ data ตามที่ต้องการ
+    
     const apiResponse = await axios.post(
       `${process.env.API_OFFICE}/partners/register`,
       {
@@ -53,12 +54,13 @@ module.exports.register = async (req, res) => {
           "Content-Type": "application/json",
         },
       }
-    );
-
-    res.status(200).send({
+    ).catch((error) => {return console.log(error)});
+    
+    return res.status(200).send({
       status: true,
       message: "คุณได้สร้างไอดี Partner เรียบร้อย",
       data: add,
+      office:apiResponse
     });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
