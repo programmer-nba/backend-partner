@@ -55,12 +55,13 @@ module.exports.register = async (req, res) => {
         },
       }
     );
-    if(apiResponse && add){
+    console.log(apiResponse.status);
+    if(apiResponse.status ==200 && add){
       return res.status(200).send({
         status: true,
         message: "คุณได้สร้างไอดี Partner เรียบร้อย",
         data: add,
-        office:apiResponse
+        office:apiResponse.data
       });
     }else{
       return res.status(200).send({
