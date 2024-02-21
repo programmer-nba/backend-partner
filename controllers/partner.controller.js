@@ -55,7 +55,6 @@ module.exports.register = async (req, res) => {
         },
       }
     );
-    console.log(apiResponse.status);
     if(apiResponse.status ==200 && add){
       return res.status(200).send({
         status: true,
@@ -164,6 +163,7 @@ module.exports.check = async (req, res) => {
               .catch((error) => {
                 return console.log(error);
               });
+
             return res
               .status(200)
               .send({ status: true, message: "ยืนยัน OTP สำเร็จ" });
@@ -405,13 +405,13 @@ module.exports.edit = async (req, res) => {
             "Content-Type": "application/json",
           },
         }
-      )
-      .catch((error) => {
-        return console.log(error);
-      });
-    return res
-      .status(200)
-      .send({ status: true, data: edit, message: "แก้ไขข้อมูลสำเร็จ" });
+      );
+      if(apiResponse.status ==200 && edit){
+        return res.status(200).send({ status: true, data: edit,office:apiResponse.data,message: "แก้ไขข้อมูลสำเร็จ" });
+      }else{
+        return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+      }
+    
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
@@ -505,16 +505,18 @@ module.exports.iden = async (req, res) => {
               "Content-Type": "application/json",
             },
           }
-        )
-        .catch((error) => {
-          return error;
-        });
+        );
       ////
-      return res.status(200).send({
-        status: true,
-        message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-        data: edit,
-      });
+      if(apiResponse.status ==200 && edit){
+        return res.status(200).send({
+          status: true,
+          message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+          data: edit,
+        });
+      }else{
+        return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+      }
+      
     });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
@@ -562,16 +564,19 @@ module.exports.filecompany = async (req, res) => {
               "Content-Type": "application/json",
             },
           }
-        )
-        .catch((error) => {
-          return error;
-        });
+        );
 
-      return res.status(200).send({
-        status: true,
-        message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-        data: edit,
-      });
+        if(apiResponse.status ==200 && edit){
+          return res.status(200).send({
+            status: true,
+            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+            data: edit,
+            office:apiResponse.data
+          });
+        }else{
+          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+        }
+      
     });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
@@ -618,15 +623,18 @@ module.exports.logo = async (req, res) => {
               "Content-Type": "application/json",
             },
           }
-        )
-        .catch((error) => {
-          return error;
-        });
-      return res.status(200).send({
-        status: true,
-        message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-        data: edit,
-      });
+        );
+        if(apiResponse.status ==200 && edit){
+          return res.status(200).send({
+            status: true,
+            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+            data: edit,
+            office:apiResponse.data
+          });
+        }else{
+          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+        }
+      
     });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
@@ -684,15 +692,18 @@ module.exports.addsignature = async (req, res) => {
               "Content-Type": "application/json",
             },
           }
-        )
-        .catch((error) => {
-          return console.log(error);
-        });
-      return res.status(200).send({
-        status: true,
-        message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-        data: edit,
-      });
+        );
+        if(apiResponse.status ==200 && edit){
+          return res.status(200).send({
+            status: true,
+            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+            data: edit,
+            office:apiResponse.data
+          });
+        }else{
+          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+        }
+      
     });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
@@ -754,15 +765,17 @@ module.exports.editsignature = async (req, res) => {
               "Content-Type": "application/json",
             },
           }
-        )
-        .catch((error) => {
-          return console.log(error);
+        );
+      if(apiResponse.status ==200 && edit){
+        return res.status(200).send({
+          status: true,
+          message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+          data: edit,
+          office:apiResponse.data
         });
-      return res.status(200).send({
-        status: true,
-        message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-        data: edit,
-      });
+      }else{
+        return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+      }
     });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
@@ -797,13 +810,17 @@ module.exports.deletesignature = async (req, res) => {
             "Content-Type": "application/json",
           },
         }
-      )
-      .catch((error) => {
-        return console.log(error);
-      });
-    return res
-      .status(200)
-      .send({ status: true, message: "คุณได้ลบภาพลายเซ็นแล้ว", data: edit });
+      );
+      if(apiResponse.status ==200 && edit){
+        return res.status(200).send({
+          status: true,
+          message: "คุณได้ลบภาพลายเซ็นแล้ว",
+          data: edit,
+          office:apiResponse.data
+        });
+      }else{
+        return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+      }
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
@@ -831,15 +848,17 @@ module.exports.WaitForApproval = async (req, res) => {
           "Content-Type": "application/json",
         },
       }
-    )
-    .catch((error) => {
-      return error;
-    });
-    return res.status(200).send({
-      status: true,
-      message: "เพิ่มข้อมูล รอ อนุมัติสำเร็จ",
-      data: updateStatus,
-    });
+    );
+    if(apiResponse.status ==200 && updateStatus){
+      return res.status(200).send({
+        status: true,
+        message: "เพิ่มข้อมูล รอ อนุมัติสำเร็จ",
+        data: updateStatus,
+        office:apiResponse.data
+      });
+    }else{
+      return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+    }
   } catch (error) {
     return res.status(500).send({ message: error.message, status: false });
   }
