@@ -583,6 +583,184 @@ module.exports.filecompany = async (req, res) => {
   }
 };
 
+module.exports.filecompany2 = async (req, res) => {
+  try {
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+      const reqFiles = [];
+      const result = [];
+      if (err) {
+        return res.status(500).send(err);
+      }
+      let image = ""; // ตั้งตัวแปรรูป
+      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+      if (req.files) {
+        const url = req.protocol + "://" + req.get("host");
+        for (var i = 0; i < req.files.length; i++) {
+          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+          result.push(src);
+
+          //   reqFiles.push(url + "/public/" + req.files[i].filename);
+        }
+
+        //ไฟล์รูป
+        image = reqFiles[0];
+      }
+
+      const data = {
+        filecompany2: image,
+      };
+
+      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
+        new: true,
+      });
+      // const apiResponse = await axios
+      //   .put(
+      //     `${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`,
+      //     { filecompany: image },
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //     }
+      //   );
+
+        if(edit){
+          return res.status(200).send({
+            status: true,
+            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+            data: edit,
+            office:apiResponse.data
+          });
+        }else{
+          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+        }
+      
+    });
+  } catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
+};
+
+module.exports.filecompany3 = async (req, res) => {
+  try {
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+      const reqFiles = [];
+      const result = [];
+      if (err) {
+        return res.status(500).send(err);
+      }
+      let image = ""; // ตั้งตัวแปรรูป
+      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+      if (req.files) {
+        const url = req.protocol + "://" + req.get("host");
+        for (var i = 0; i < req.files.length; i++) {
+          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+          result.push(src);
+
+          //   reqFiles.push(url + "/public/" + req.files[i].filename);
+        }
+
+        //ไฟล์รูป
+        image = reqFiles[0];
+      }
+
+      const data = {
+        filecompany3: image,
+      };
+
+      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
+        new: true,
+      });
+      // const apiResponse = await axios
+      //   .put(
+      //     `${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`,
+      //     { filecompany: image },
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //     }
+      //   );
+
+        if(edit){
+          return res.status(200).send({
+            status: true,
+            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+            data: edit,
+            office:apiResponse.data
+          });
+        }else{
+          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+        }
+      
+    });
+  } catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
+};
+
+module.exports.filecompany4 = async (req, res) => {
+  try {
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+      const reqFiles = [];
+      const result = [];
+      if (err) {
+        return res.status(500).send(err);
+      }
+      let image = ""; // ตั้งตัวแปรรูป
+      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+      if (req.files) {
+        const url = req.protocol + "://" + req.get("host");
+        for (var i = 0; i < req.files.length; i++) {
+          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+          result.push(src);
+
+          //   reqFiles.push(url + "/public/" + req.files[i].filename);
+        }
+
+        //ไฟล์รูป
+        image = reqFiles[0];
+      }
+
+      const data = {
+        filecompany4: image,
+      };
+
+      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
+        new: true,
+      });
+      // const apiResponse = await axios
+      //   .put(
+      //     `${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`,
+      //     { filecompany: image },
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //     }
+      //   );
+
+        if(edit){
+          return res.status(200).send({
+            status: true,
+            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+            data: edit,
+            office:apiResponse.data
+          });
+        }else{
+          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+        }
+      
+    });
+  } catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
+};
+
+
 // เพิ่มรูปภาพโลโก้
 module.exports.logo = async (req, res) => {
   try {

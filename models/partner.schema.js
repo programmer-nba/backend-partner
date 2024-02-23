@@ -39,6 +39,9 @@ const partnerSchema = new mongoose.Schema(
 
     partner_iden: { type: String, required: false, default: "" }, // เลขบัตรประชาชน
     filecompany: { type: String, default: "" },
+    filecompany2: { type: String, default: "" },
+    filecompany3: { type: String, default: "" },
+    filecompany4: { type: String, default: "" },
     logo: { type: String, default: "" },
     // ลายเซ็นต์
     signature: {

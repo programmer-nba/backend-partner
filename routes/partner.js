@@ -23,6 +23,10 @@ router.put("/accept/:id",Partner.accept);
 
 router.put("/idcard/:id",Auth.all,Partner.iden);
 router.put("/filecompany/:id",Auth.all,Partner.filecompany);
+router.put("/filecompany2/:id",Auth.all,Partner.filecompany2);
+router.put("/filecompany3/:id",Auth.all,Partner.filecompany3);
+router.put("/filecompany4/:id",Auth.all,Partner.filecompany4);
+
 router.put("/logo/:id",Auth.all,Partner.logo);
 
 /// ส่ง opt 
