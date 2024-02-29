@@ -614,6 +614,7 @@ module.exports.filecompany2 = async (req, res) => {
       const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
+     
       // const apiResponse = await axios
       //   .put(
       //     `${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`,
@@ -630,7 +631,6 @@ module.exports.filecompany2 = async (req, res) => {
             status: true,
             message: "คุณได้รูปภาพเรียบร้อยแล้ว",
             data: edit,
-            office:apiResponse.data
           });
         }else{
           return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
@@ -689,7 +689,7 @@ module.exports.filecompany3 = async (req, res) => {
             status: true,
             message: "คุณได้รูปภาพเรียบร้อยแล้ว",
             data: edit,
-            office:apiResponse.data
+          
           });
         }else{
           return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
@@ -748,7 +748,7 @@ module.exports.filecompany4 = async (req, res) => {
             status: true,
             message: "คุณได้รูปภาพเรียบร้อยแล้ว",
             data: edit,
-            office:apiResponse.data
+            
           });
         }else{
           return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
