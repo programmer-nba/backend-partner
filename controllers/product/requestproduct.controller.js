@@ -29,10 +29,6 @@ module.exports.add = async (req, res) => {
             product_category:req.body.product_category,
             product_costprice:req.body.product_costprice,
             product_price:req.body.product_price,
-            product_weight:req.body.product_weight,
-            product_width:req.body.product_width,
-            product_long:req.body.product_long,
-            product_height:req.body.product_height,
             product_store:req.body.product_store,
             product_partner_id: (req.body.product_partner_id == undefined || req.body.product_partner_id == '') ? null : req.body.product_partner_id,
             product_detail:req.body.product_detail,
@@ -51,7 +47,7 @@ module.exports.add = async (req, res) => {
 //ดึงข้อมูลคำร้องขอฝากขายสินค้าทั้งหมด
 module.exports.getAll = async (req, res) => {
     try{
-        const data = await Requestproduct.find().populate('product_partner_id');
+        const data = await Requestproduct.find().populate({path: 'product_partner_id', select: 'partner_name partner_company_name'});
         return res.status(200).json({ status:true,message: "ข้อมูลคำร้องขอฝากขายสินค้าทั้งหมด",data: data });
     }catch(err){
         return res.status(500).json({ status:false,message: err.message });
@@ -60,7 +56,7 @@ module.exports.getAll = async (req, res) => {
 //ดึงข้อมูลคำร้องขอฝากขายสินค้า by id
 module.exports.getById = async (req, res) => {
     try{
-        const data = await Requestproduct.findById(req.params.id).populate('product_partner_id');
+        const data = await Requestproduct.findById(req.params.id).populate({path: 'product_partner_id', select: 'partner_name partner_company_name'});
         return res.status(200).json({ status:true,message: "ข้อมูลคำร้องขอฝากขายสินค้า",data: data });
     }catch(err){
         return res.status(500).json({ status:false,message: err.message });
@@ -69,7 +65,7 @@ module.exports.getById = async (req, res) => {
 //ดึงข้อมูลคำร้องขอฝากขายสินค้า by partner_id
 module.exports.getByPartnerId = async (req, res) => {
     try{
-        const data = await Requestproduct.find({product_partner_id:req.params.id}).populate('product_partner_id');
+        const data = await Requestproduct.find({product_partner_id:req.params.id}).populate({path: 'product_partner_id', select: 'partner_name partner_company_name'});
         return res.status(200).json({ status:true,message: "ข้อมูลคำร้องขอฝากขายสินค้า",data: data });
     }catch(err){
         return res.status(500).json({ status:false,message: err.message });
@@ -85,13 +81,8 @@ module.exports.update = async (req, res) => {
                 product_name:req.body.product_name,
                 product_status_type:req.body.product_status_type,
                 product_category:req.body.product_category,
-              
                 product_costprice:req.body.product_costprice,
                 product_price:req.body.product_price,
-                product_weight:req.body.product_weight,
-                product_width:req.body.product_width,
-                product_long:req.body.product_long,
-                product_height:req.body.product_height,
                 product_store:req.body.product_store,
                 product_partner_id:req.body.product_partner_id,
                 product_detail:req.body.product_detail,
@@ -142,10 +133,6 @@ module.exports.approve = async (req, res) => {
             product_category:data.product_category,
             product_costprice:data.product_costprice,
             product_price:data.product_price,
-            product_weight:data.product_weight,
-            product_width:data.product_width,
-            product_long:data.product_long,
-            product_height:data.product_height,
             product_store:data.product_store,
             product_partner_id:data.product_partner_id,
             product_detail:data.product_detail,
@@ -227,7 +214,7 @@ module.exports.addimgproduct = async (req, res) => {
 module.exports.getbyapprove = async (req, res) => {
     try{
         //ดึงข้อมูลคำร้องขอฝากขายสินค้าที่รออนุมัติ เช็คจาก request_status:false และ  request_status_detail ตำแหน่งสุดท้าย status รอการอนุมัติ
-        const data = await Requestproduct.find({request_status:false}).populate('product_partner_id');
+        const data = await Requestproduct.find({request_status:false}).populate({path: 'product_partner_id', select: 'partner_name partner_company_name'});
         const datafilter = data.filter((item) => item.request_status_detail[item.request_status_detail.length - 1].status === "รอการอนุมัติ");
 
         return res.status(200).json({ status:true,data: datafilter });

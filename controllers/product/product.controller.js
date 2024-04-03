@@ -1,4 +1,4 @@
-
+const jwt = require("jsonwebtoken");
 const {Product,validateproduct} = require("../../models/product/product.schema");
 const multer = require("multer");
 const {
@@ -29,10 +29,6 @@ module.exports.add = async (req, res) => {
                 product_category:req.body.product_category,
                 product_costprice:req.body.product_costprice,
                 product_price:req.body.product_price,
-                product_weight:req.body.product_weight,
-                product_width:req.body.product_width,
-                product_long:req.body.product_long,
-                product_height:req.body.product_height,
                 product_store:req.body.product_store,
                 product_partner_id: (req.body.product_partner_id == undefined || req.body.product_partner_id == '') ? null : req.body.product_partner_id,
                 product_detail:req.body.product_detail,
@@ -54,7 +50,7 @@ module.exports.add = async (req, res) => {
 //ดึงข้อมูลสินค้าทั้งหมด 
 module.exports.getall = async (req, res) => {
     try{
-        const get = await Product.find().populate('product_partner_id');
+        const get = await Product.find().populate({path: 'product_partner_id', select: 'partner_name partner_company_name'});
         if(get){
             return res.status(200).json({message:"ดึงข้อมูลสินค้าสำเร็จ",data:get,status:true});
         }else{
@@ -69,7 +65,7 @@ module.exports.getall = async (req, res) => {
 //ดึงข้อมูลสินค้าตามไอดี
 module.exports.getbyid = async (req, res) => {
     try{
-        const get = await Product.findById(req.params.id).populate('product_partner_id');
+        const get = await Product.findById(req.params.id).populate({path: 'product_partner_id', select: 'partner_name partner_company_name'});
         if(get){
             return res.status(200).json({message:"ดึงข้อมูลสินค้าสำเร็จ",data:get,status:true});
         }else{
@@ -90,7 +86,7 @@ module.exports.search = async (req, res) => {
                 { product_name: { $regex: req.params.name, $options: 'i' } },
                 { product_name:  req.params.name }
             ]
-        }).populate('product_partner_id').populate('product_category').populate('product_type');
+        }).populate({path: 'product_partner_id', select: 'partner_name partner_company_name'})
         if(get){
             return res.status(200).json({message:"ค้นหาสินค้าสำเร็จ",data:get,status:true});
         }else{
@@ -124,10 +120,6 @@ module.exports.edit = async (req, res) => {
                 product_category:req.body.product_category,
                 product_costprice:req.body.product_costprice,
                 product_price:req.body.product_price,
-                product_weight:req.body.product_weight,
-                product_width:req.body.product_width,
-                product_long:req.body.product_long,
-                product_height:req.body.product_height,
                 product_store:req.body.product_store,
                 product_partner_id: (req.body.product_partner_id == undefined || req.body.product_partner_id == '') ? null : req.body.product_partner_id,
                 product_detail:req.body.product_detail,
@@ -226,7 +218,43 @@ module.exports.addimgproduct = async (req, res) => {
 //ค้นหาตาม partner ตาม id
 module.exports.getbypartner = async (req, res) => {
     try{
-        const get = await Product.find({product_partner_id:req.params.id}).populate('product_partner_id');
+        const get = await Product.find({product_partner_id:req.params.id}).populate({path: 'product_partner_id', select: 'partner_name partner_company_name'});
+        if(get){
+            return res.status(200).json({message:"ดึงข้อมูลสินค้าสำเร็จ",data:get,status:true});
+        }else{
+            return res.status(400).json({message:"ดึงข้อมูลสินค้าไม่สำเร็จ",status:false});
+        }
+    }catch(error){
+        return res.status(500).json({message:error.message, status: false});
+    }
+}
+
+
+
+//สร้าง token สำหรับการเข้าถึงข้อมูล
+module.exports.getpublictoken = async (req, res) => {
+    try{
+        const typecode = req.body.typecode;
+        let token 
+        if(typecode =="shop")
+        {
+            token = jwt.sign({code:"shop",name:"shop",key:"shop_tossagun"},process.env.SHOP_SECRET_KET)
+        }else if(typecode =="service")
+        {
+            token = jwt.sign({code:"service",name:"service",key:"service"},process.env.SHOP_SECRET_KET)
+
+        }else{
+            return res.status(400).json({message:"ไม่พบ typecode ที่ต้องการ",status:false});
+        }
+        return res.status(200).json({message:"สร้าง token สำเร็จ",data:token,status:true});
+    }catch(error){
+        return res.status(500).json({message:error.message, status: false});
+    }
+}
+// ดึงข้อมูลสินค้าทั้งหมด ที่เปิดขาย
+module.exports.gettruestatus = async (req, res) => {
+    try{
+        const get = await Product.find({product_status:true}).populate({path: 'product_partner_id', select: 'partner_name partner_company_name'});
         if(get){
             return res.status(200).json({message:"ดึงข้อมูลสินค้าสำเร็จ",data:get,status:true});
         }else{

@@ -30,4 +30,10 @@ router.put('/status/:id',userAuth.partner,product.status);
 //รูปสินค้า
 router.put('/image/:id',userAuth.partner,product.addimgproduct);
 
+// สร้าง token เพื่อต่อด้านนอก
+router.post('/getpublictoken',product.getpublictoken);
+// ดึงข้อมูลสินค้าทั้งหมด ที่เปิดขาย
+router.get('/getshopproduct',userAuth.public,product.gettruestatus);
+
+
 module.exports = router;

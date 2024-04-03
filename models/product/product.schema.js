@@ -9,10 +9,6 @@ const ProductSchema = new mongoose.Schema(
     product_category:{type:String,default:""}, //หมวดหมู่สินค้า
     product_costprice:{type:Number,require:true},//ราคาต้นทุน
     product_price:{type:Number,require:true}, //ราคาสินค้า
-    product_weight:{type:Number,require:true},//น้ำหนัก
-    product_width:{type:Number,require:true},//กว้าง
-    product_long:{type:Number,require:true},//ยาว
-    product_height:{type:Number,require:true},//สูง
     product_partner_id:{type: mongoose.Schema.Types.ObjectId,ref:'partner',default:null}, //ไอดีคู่ค้า
     product_detail:{type:String,require:true}, //รายละเอียดสินค้า
     product_stock:{type:Number,require:true}, //จำนวนสินค้า
