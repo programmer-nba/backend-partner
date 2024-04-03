@@ -226,7 +226,7 @@ module.exports.addimgproduct = async (req, res) => {
 //ค้นหาตาม partner ตาม id
 module.exports.getbypartner = async (req, res) => {
     try{
-        const get = await Product.find({product_partner_id:req.params.id}).populate('product_partner_id').populate('product_category').populate('product_type');
+        const get = await Product.find({product_partner_id:req.params.id}).populate('product_partner_id');
         if(get){
             return res.status(200).json({message:"ดึงข้อมูลสินค้าสำเร็จ",data:get,status:true});
         }else{
