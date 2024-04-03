@@ -12,8 +12,6 @@ router.get('/byid/:id', Requestproduct.getById);
 //ดึงข้อมูลคำร้องขอฝากขายสินค้า by partner_id
 router.get('/bypartner/:id', userAuth.partner,Requestproduct.getByPartnerId);
 
-//ดึงข้อมูลคำร้องขอฝากขายสินค้า ที่รอการอนุมัติ
-router.get('/waitapprove/',Requestproduct.getbyapprove);
 
 
 //อัพเดทข้อมูลคำร้องขอฝากขายสินค้า
@@ -24,9 +22,20 @@ router.delete('/:id',userAuth.partner ,Requestproduct.delete);
 //เพิ่มรูปภาพสินค้า
 router.put('/image/:id',userAuth.partner,Requestproduct.addimgproduct);
 
+
+//ของ office
+
+// สร้าง token เพื่อต่อด้านนอก
+router.post('/getpublictoken',Requestproduct.getpublictoken);
+
+//ดึงข้อมูลคำร้องขอฝากขายสินค้า ที่รอการอนุมัติ
+router.get('/waitapprove/',userAuth.public,Requestproduct.getbyapprove);
+
 //อนุมัติคำร้องขอฝากขายสินค้า
-router.put('/approve/:id', Requestproduct.approve);
+router.put('/approve/:id', userAuth.public,Requestproduct.approve);
 //ไม่อนุมัติคำร้องขอฝากขายสินค้า
-router.put('/disapprove/:id',Requestproduct.disapprove);
+router.put('/disapprove/:id',userAuth.public,Requestproduct.disapprove);
+
+
 
 module.exports = router;

@@ -64,9 +64,11 @@ const public = async(req, res, next)=>{
         // ทำการยืนยันสิทธิ์ token
         const decoded =  jwt.verify(token,secretKey)
         // console.log(decoded)
-        if(decoded.code =="shop" || decoded.code =="service"){
+        if(decoded.code =="shop" || decoded.code =="service" || decoded.code =="office"){
+            
             req.users = decoded.data
             next();
+
         }else{
            return res.status(400).send({status:false,message:"คุณไม่มีสิทธิ่ในการใช้งาน"})
         }

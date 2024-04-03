@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const {Requestproduct} = require('../../models/product/requestproduct.schema');
 const {Product} = require('../../models/product/product.schema');
 const multer = require("multer");
@@ -222,3 +223,22 @@ module.exports.getbyapprove = async (req, res) => {
         return res.status(500).json({ status:false,message: err.message });
     }
 }
+
+//สร้าง token สำหรับการเข้าถึงข้อมูล
+module.exports.getpublictoken = async (req, res) => {
+    try{
+        const typecode = req.body.typecode;
+        let token 
+        if(typecode =="office")
+        {
+            token = jwt.sign({code:"office",name:"office",key:"office"},process.env.SHOP_SECRET_KET)
+        }
+        else{
+            return res.status(400).json({message:"ไม่พบ typecode ที่ต้องการ",status:false});
+        }
+        return res.status(200).json({message:"สร้าง token สำเร็จ",data:token,status:true});
+    }catch(error){
+        return res.status(500).json({message:error.message, status: false});
+    }
+}
+
