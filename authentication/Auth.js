@@ -12,7 +12,8 @@ const partner = async(req, res, next)=>{
 
         // ทำการยืนยันสิทธิ์ token
         const decoded =  jwt.verify(token,secretKey)
-        if(decoded.postion ==="partner"){
+        // console.log(decoded)
+        if(decoded.position ==="partner"){
             req.users = decoded.data
             next();
         }else{

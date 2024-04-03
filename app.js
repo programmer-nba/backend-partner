@@ -32,6 +32,11 @@ app.use(prefix + '/partner', require('./routes/partner'));
 //ข้อมูลคู่ค้า
 app.use(prefix + '/dealer', require('./routes/dealer'));
 
+//ฝากขายสินค้า
+app.use(prefix + '/requestproduct', require('./routes/product/requestproduct'));
+//ข้อมูลสินค้า
+app.use(prefix + '/product', require('./routes/product/product'));
+
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*'); // หรือกำหนด origin ที่เฉพาะเจาะจง
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
