@@ -18,10 +18,8 @@ const RequestProductSchema = new mongoose.Schema(
       status:{type:String,default:""}, //สถานะการขอสินค้า
       date:{type:Date,default:Date.now()} //วันที่เปลี่ยนสถานะ
     }],default:[]}, //รายละเอียดสถานะการขอสินค้า
-    
     office_id:{type:String,default:""}, //คนอนุมัติ
     office_name:{type:String,default:""}, //ชื่อคนอนุมัติ
-
   },
   {timestamps: true}
 );
