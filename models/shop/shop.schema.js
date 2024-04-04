@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const ShopSchema = new mongoose.Schema(
   {
     shop_name:{type:String,required:true},
+    shop_type:{type:String,required:true},
     address:{type:{
       address:{type:String,default:""}, //(ที่อยู่)
       province:{type:String,default:""}, //(จังหวัด)

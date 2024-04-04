@@ -26,6 +26,7 @@ module.exports.add = async (req, res) => {
         }
         const data = new Requestshop({
             shop_name:req.body.shop_name,
+            shop_type:req.body.shop_type,
             address:req.body.address,
             latitude :req.body.latitude, //ละติจูด
             longitude:req.body.longitude, //ลองจิจูด
@@ -79,10 +80,12 @@ module.exports.getByPartnerId = async (req, res) => {
 //อัพเดทข้อมูลคำร้องขอเปิดร้านค้า
 module.exports.update = async (req, res) => {
     try{
+      
         const checrequest = await Requestshop.findById(req.params.id);
         if(checrequest){
             const data ={
                 shop_name:req.body.shop_name,
+                shop_type:req.body.shop_type,
                 address:req.body.address,
                 latitude :req.body.latitude, //ละติจูด
                 longitude:req.body.longitude, //ลองจิจูด
@@ -92,6 +95,7 @@ module.exports.update = async (req, res) => {
                 taxid:req.body.taxid, //เลขประจำตัวผู้เสียภาษี
                 addresstax:req.body.addresstax,
             }
+           
             const edit = await Requestshop.findByIdAndUpdate(req.params.id,data,{new:true});
             return res.status(200).json({ status:true,message: "อัพเดทข้อมูลคำร้องขอเปิดร้านค้าสำเร็จ",data: edit });
         }
@@ -133,6 +137,7 @@ module.exports.approve = async (req, res) => {
         // เพิ่มข้อมูลสินค้า จาก ข้อมูลฝากขายสินค้า
         const shop = new Shop({
             shop_name:data.shop_name,
+            shop_type:data.shop_type,
             address:data.address,
             latitude :data.latitude, //ละติจูด
             longitude:data.longitude, //ลองจิจูด

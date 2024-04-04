@@ -39,9 +39,10 @@ app.use(prefix + '/product', require('./routes/product/product'));
 
 //ข้อมูลร้านค้า
 app.use(prefix + '/shop', require('./routes/shop/shop'));
-
 //คำร้องขอเปิดร้านค้า
 app.use(prefix + '/requestshop', require('./routes/shop/requestshop'));
+//ข้อมูลสินค้าร้านค้า
+app.use(prefix + '/productshop', require('./routes/shop/productshop'));
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*'); // หรือกำหนด origin ที่เฉพาะเจาะจง

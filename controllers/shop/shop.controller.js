@@ -55,6 +55,7 @@ module.exports.edit = async (req, res) => {
             
             const edit = await Shop.findByIdAndUpdate(req.params.id,{
                 shop_name:req.body.shop_name,
+                shop_type:req.body.shop_type,
                 address:req.body.address,
                 latitude :req.body.latitude, //ละติจูด
                 longitude:req.body.longitude, //ลองจิจูด

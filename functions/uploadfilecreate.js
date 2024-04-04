@@ -27,14 +27,15 @@ async function uploadFileCreate(req, res, {i, reqFiles}) {
     body: fs.createReadStream(filePath),
   };
   try {
+    
     const response = await drive.files.create({
       resource: fileMetaData,
       media: media,
-    });
+    }).catch((error)=>{return false});
+    if(!response) return false;
 
     generatePublicUrl(response.data.id);
     reqFiles.push(response.data.id);
-    console.log(response.data.id);
     return response.data.id;
   } catch (error) {
     return res.status(500).send({message: error.message});
