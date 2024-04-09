@@ -30,10 +30,26 @@ router.put('/status/:id',userAuth.partner,product.status);
 //รูปสินค้า
 router.put('/image/:id',userAuth.partner,product.addimgproduct);
 
+//เพิ่มรูปสินค้าย่อย
+router.put('/subimage1/:id', userAuth.partner, product.addsubimgproduct);
+//เพิ่มรูปสินค้าย่อย2
+router.put('/subimage2/:id', userAuth.partner, product.addsubimgproduct2);
+//เพิ่มรูปสินค้าย่อย3
+router.put('/subimage3/:id', userAuth.partner, product.addsubimgproduct3);
+
 // สร้าง token เพื่อต่อด้านนอก
 router.post('/getpublictoken',product.getpublictoken);
 // ดึงข้อมูลสินค้าทั้งหมด ที่เปิดขาย
 router.get('/getshopproduct',userAuth.public,product.gettruestatus);
+
+
+
+//ดึงข้อมูลสินค้าทั้งหมดให้ office
+router.get('/getallproductbyoffice',userAuth.public,product.getall);
+//แก้ไขข้อมูลสินค้า ให้ office
+router.put('/editproductbyoffice/:id',userAuth.public,product.edit);
+
+
 
 
 module.exports = router;

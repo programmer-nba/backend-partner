@@ -20,9 +20,7 @@ module.exports.add = async (req, res) => {
     try{
         const data = new Productshop({
             productshop_name: req.body.productshop_name, //ชื่อสินค้า
-            productshop_cost : req.body.productshop_cost, //ต้นทุนสินค้า
             productshop_price: req.body.productshop_price, //ราคาสินค้า
-            productshop_profit: req.body.productshop_profit, //กำไรสินค้า
             shop_id:req.body.shop_id, //ไอดีร้านค้า
         });
         const add = await data.save();
@@ -78,9 +76,7 @@ module.exports.edit = async (req, res) => {
     try{
         const edit = await Productshop.findByIdAndUpdate(req.params.id,{
             productshop_name: req.body.productshop_name, //ชื่อสินค้า
-            productshop_cost : req.body.productshop_cost, //ต้นทุนสินค้า
             productshop_price: req.body.productshop_price, //ราคาสินค้า
-            productshop_profit: req.body.productshop_profit, //กำไรสินค้า
             shop_id:req.body.shop_id, //ไอดีร้านค้า
         },{new:true});
         if(edit){
@@ -106,7 +102,7 @@ module.exports.delete = async (req, res) => {
         return res.status(500).json({message:error.message, status: false});
     }
 }
-//เพิ่มรูปสินค้า
+
 
 //เพิ่มรูปสินค้า
 module.exports.addimgproduct = async (req, res) => {

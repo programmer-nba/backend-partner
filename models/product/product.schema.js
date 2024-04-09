@@ -12,8 +12,11 @@ const ProductSchema = new mongoose.Schema(
     product_partner_id:{type: mongoose.Schema.Types.ObjectId,ref:'partner',default:null}, //ไอดีคู่ค้า
     product_detail:{type:String,require:true}, //รายละเอียดสินค้า
     product_stock:{type:Number,require:true}, //จำนวนสินค้า
-    product_image:{type:String,default:""}, //รูปภาพสินค้า
     product_status :{type:Boolean,default:true}, //สถานะสินค้า (true: เปิดขาย , false: ปิดขาย)
+    product_image:{type:String,default:""}, //รูปภาพสินค้า
+    product_subimage1:{type:String,default:""}, //รูปภาพสินค้าย่อย 1
+    product_subimage2:{type:String,default:""}, //รูปภาพสินค้าย่อย 2
+    product_subimage3:{type:String,default:""}, //รูปภาพสินค้าย่อย 3
   },
   {timestamps: true}
 );

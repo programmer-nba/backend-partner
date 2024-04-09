@@ -38,4 +38,8 @@ router.put('/disapprove/:id',userAuth.public,Requestproduct.disapprove);
 
 
 
+//แก้ไขข้อมูลสินค้า ให้ office
+router.put('/editproductbyoffice/:id',userAuth.public,Requestproduct.update);
+
+
 module.exports = router;

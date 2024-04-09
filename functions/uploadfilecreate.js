@@ -31,8 +31,8 @@ async function uploadFileCreate(req, res, {i, reqFiles}) {
     const response = await drive.files.create({
       resource: fileMetaData,
       media: media,
-    }).catch((error)=>{return false});
-    if(!response) return false;
+    }).catch((error)=>{return console.log(error.message)});
+    if(!response) return console.log("error");
 
     generatePublicUrl(response.data.id);
     reqFiles.push(response.data.id);
