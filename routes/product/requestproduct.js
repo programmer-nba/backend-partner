@@ -36,7 +36,12 @@ router.put('/approve/:id', userAuth.public,Requestproduct.approve);
 //ไม่อนุมัติคำร้องขอฝากขายสินค้า
 router.put('/disapprove/:id',userAuth.public,Requestproduct.disapprove);
 
-
+//เพิ่มรูปสินค้าย่อย
+router.put('/subimage1/:id', userAuth.partner, Requestproduct.addsubimgproduct);
+//เพิ่มรูปสินค้าย่อย2
+router.put('/subimage2/:id', userAuth.partner, Requestproduct.addsubimgproduct2);
+//เพิ่มรูปสินค้าย่อย3
+router.put('/subimage3/:id', userAuth.partner, Requestproduct.addsubimgproduct3);
 
 //แก้ไขข้อมูลสินค้า ให้ office
 router.put('/editproductbyoffice/:id',userAuth.public,Requestproduct.update);

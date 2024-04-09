@@ -212,6 +212,119 @@ module.exports.addimgproduct = async (req, res) => {
 
 };
 
+//เพิ่มรูปสินค้าย่อย1
+module.exports.addsubimgproduct = async (req, res) => {
+    try{
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+        const reqFiles = [];
+        const result = [];
+        if (err) {
+            return res.status(500).send(err);
+        }
+        const product = await Requestproduct.findById(req.params.id);
+        if(!product){
+            return res.status(400).json({message:"ไม่พบข้อมูลสินค้า",status:false});
+        }else{
+            product.product_image != ''? deleteFile(product.product_image) : null
+        }
+
+        let image = '' // ตั้งตัวแปรรูป
+        //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+        if (req.files) {
+            const url = req.protocol + "://" + req.get("host");
+            for (var i = 0; i < req.files.length; i++) {
+                const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+                result.push(src);
+                //   reqFiles.push(url + "/public/" + req.files[i].filename);
+            }
+            image = reqFiles[0]
+        }
+        const data = { product_subimage1: image }
+        const edit = await Requestproduct.findByIdAndUpdate(req.params.id, data, { new: true })
+        return res.status(200).send({ status: true, message: "เพิ่มรูปภาพเรียบร้อย", data: edit });
+    });
+    } catch (error) {
+        return res.status(500).send({ status: false, error: error.message });
+    }
+
+};
+//เพิ่มรูปสินค้าย่อย2
+module.exports.addsubimgproduct2 = async (req, res) => {
+    try{
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+        const reqFiles = [];
+        const result = [];
+        if (err) {
+            return res.status(500).send(err);
+        }
+        const product = await Requestproduct.findById(req.params.id);
+        if(!product){
+            return res.status(400).json({message:"ไม่พบข้อมูลสินค้า",status:false});
+        }else{
+            product.product_image != ''? deleteFile(product.product_image) : null
+        }
+
+        let image = '' // ตั้งตัวแปรรูป
+        //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+        if (req.files) {
+            const url = req.protocol + "://" + req.get("host");
+            for (var i = 0; i < req.files.length; i++) {
+                const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+                result.push(src);
+                //   reqFiles.push(url + "/public/" + req.files[i].filename);
+            }
+            image = reqFiles[0]
+        }
+        const data = { product_subimage2: image }
+        const edit = await Requestproduct.findByIdAndUpdate(req.params.id, data, { new: true })
+        return res.status(200).send({ status: true, message: "เพิ่มรูปภาพเรียบร้อย", data: edit });
+    });
+    } catch (error) {
+        return res.status(500).send({ status: false, error: error.message });
+    }
+
+};
+//เพิ่มรูปสินค้าย่อย3
+module.exports.addsubimgproduct3 = async (req, res) => {
+    try{
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+        const reqFiles = [];
+        const result = [];
+        if (err) {
+            return res.status(500).send(err);
+        }
+        const product = await Requestproduct.findById(req.params.id);
+        if(!product){
+            return res.status(400).json({message:"ไม่พบข้อมูลสินค้า",status:false});
+        }else{
+            product.product_image != ''? deleteFile(product.product_image) : null
+        }
+
+        let image = '' // ตั้งตัวแปรรูป
+        //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+        if (req.files) {
+            const url = req.protocol + "://" + req.get("host");
+            for (var i = 0; i < req.files.length; i++) {
+                const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+                result.push(src);
+                //   reqFiles.push(url + "/public/" + req.files[i].filename);
+            }
+            image = reqFiles[0]
+        }
+        const data = { product_subimage2: image }
+        const edit = await Requestproduct.findByIdAndUpdate(req.params.id, data, { new: true })
+        return res.status(200).send({ status: true, message: "เพิ่มรูปภาพเรียบร้อย", data: edit });
+    });
+    } catch (error) {
+        return res.status(500).send({ status: false, error: error.message });
+    }
+
+};
+
+
 module.exports.getbyapprove = async (req, res) => {
     try{
         //ดึงข้อมูลคำร้องขอฝากขายสินค้าที่รออนุมัติ เช็คจาก request_status:false และ  request_status_detail ตำแหน่งสุดท้าย status รอการอนุมัติ

@@ -53,8 +53,7 @@ module.exports.register = async (req, res) => {
         headers: {
           "Content-Type": "application/json",
         },
-      }
-    );
+      });
     if(apiResponse.status ==200 && add){
       return res.status(200).send({
         status: true,

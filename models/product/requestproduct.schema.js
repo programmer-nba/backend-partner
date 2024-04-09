@@ -13,6 +13,9 @@ const RequestProductSchema = new mongoose.Schema(
     product_detail:{type:String,require:true}, //รายละเอียดสินค้า
     product_stock:{type:Number,require:true}, //จำนวนสินค้า
     product_image:{type:String,default:""}, //รูปภาพสินค้า
+    product_subimage1:{type:String,default:""}, //รูปภาพสินค้าย่อย 1
+    product_subimage2:{type:String,default:""}, //รูปภาพสินค้าย่อย 2
+    product_subimage3:{type:String,default:""}, //รูปภาพสินค้าย่อย 3
     request_status:{type:Boolean,default:false}, //สถานะการขอสินค้า (true: อนุมัติ , false: รอการอนุมัติ)
     request_status_detail:{type:[{
       status:{type:String,default:""}, //สถานะการขอสินค้า
