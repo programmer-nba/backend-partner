@@ -24,6 +24,7 @@ module.exports.add = async (req, res) => {
             status:"รอการอนุมัติ",
             date:Date.now()
         }
+        console.log(req.body.shop_type)
         const data = new Requestshop({
             shop_name:req.body.shop_name,
             shop_type:req.body.shop_type,

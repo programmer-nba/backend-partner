@@ -26,5 +26,17 @@ router.put('/image/:id', userAuth.partner, Productshop.addimgproduct);
 router.put('/status/:id',userAuth.partner, Productshop.status);
 
 
+//office
+router.get('/office', userAuth.public, Productshop.getall);
+
+//office by id
+router.get('/office/byid/:id', userAuth.public, Productshop.getbyid);
+
+//office by shop_id
+router.get('/office/byshopid/:id', userAuth.public, Productshop.getbyshopid);
+
+//แก้ไขข้อมูลสินค้า
+router.put('/office/:id',userAuth.public, Productshop.edit);
+
 
 module.exports = router;

@@ -28,6 +28,14 @@ router.get('/getshop/getall',userAuth.public,Shop.getall);
 //by id
 router.get('/getshop/byid/:id',userAuth.public,Shop.getbyid);
 
+//office
+//ดึงข้อมูล shop 
+router.get('/getshop/office',userAuth.public,Shop.getallshopproduct);
 
+// ดึงข้อมูลร้านค้าทั้งหมด และสินค้าในร้านค้า ตามไอดี
+router.get('/getshop/office/byid/:id',userAuth.public,Shop.getallshopproductbyid);
+
+//แก้ไขข้อมูลร้านค้า ให้ office
+router.put('/getshop/office/:id',userAuth.public,Shop.editoffice);
 
 module.exports = router;

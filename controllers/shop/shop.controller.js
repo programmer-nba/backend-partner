@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const {Shop} = require('../../models/shop/shop.schema');
+const mongoose = require('mongoose');
 const multer = require("multer");
 const {
   uploadFileCreate,
@@ -161,6 +162,99 @@ module.exports.gettruestatus = async (req, res) => {
         }else{
             return res.status(400).json({message:"ดึงข้อมูลร้านค้าไม่สำเร็จ",status:false});
         }
+    }catch(error){
+        return res.status(500).json({message:error.message, status: false});
+    }
+}
+
+
+// ของ office
+
+// ดึงข้อมูลร้านค้าทั้งหมด และสินค้าในร้านค้า
+module.exports.getallshopproduct = async (req, res) => {
+    try{
+        //
+        const get = await Shop.aggregate([
+            
+            {
+                $lookup: {
+                    from: 'productshops',
+                    localField: '_id',
+                    foreignField: 'shop_id',
+                    as: 'products'
+                }
+            }
+        ])
+
+        
+        if(get){
+            return res.status(200).json({message:"ดึงข้อมูลร้านค้าสำเร็จ",data:get,status:true});
+        }else{
+            return res.status(400).json({message:"ดึงข้อมูลร้านค้าไม่สำเร็จ",status:false});
+        }
+    }catch(error){
+        return res.status(500).json({message:error.message, status: false});
+    }
+}
+
+// ดึงข้อมูลร้านค้าทั้งหมด และสินค้าในร้านค้า ตามไอดี
+module.exports.getallshopproductbyid = async (req, res) => {
+    try{
+        //
+        const get = await Shop.aggregate([
+            {
+                $match: { _id: new mongoose.Types.ObjectId(req.params.id) }
+            },
+            {
+                $lookup: {
+                    from: 'productshops',
+                    localField: '_id',
+                    foreignField: 'shop_id',
+                    as: 'products'
+                }
+            }
+        ]);
+
+        
+        if(get){
+            return res.status(200).json({message:"ดึงข้อมูลร้านค้าสำเร็จ",data:get,status:true});
+        }else{
+            return res.status(400).json({message:"ดึงข้อมูลร้านค้าไม่สำเร็จ",status:false});
+        }
+    }catch(error){
+        return res.status(500).json({message:error.message, status: false});
+    }
+}
+
+//แก้ไขข้อมูลร้านค้า ให้ office
+module.exports.editoffice = async (req, res) => {
+    try{
+            //เช็คว่ามีไอดีนี้หรือไม่
+            const check = await Shop.findById(req.params.id);
+            if(!check){
+                return res.status(400).json({message:"ไม่พบข้อมูลร้านค้า",status:false});
+            }
+            
+            const edit = await Shop.findByIdAndUpdate(req.params.id,{
+                shop_name:req.body.shop_name,
+                shop_type:req.body.shop_type,
+                address:req.body.address,
+                latitude :req.body.latitude, //ละติจูด
+                longitude:req.body.longitude, //ลองจิจูด
+                
+                taxstatus:req.body.taxstatus, //ภาษี (true: มี , false: ไม่มี)
+                nametax:req.body.nametax, //ชื่อผู้เสียภาษี
+                taxid:req.body.taxid, //เลขประจำตัวผู้เสียภาษี
+                addresstax:req.body.addresstax,
+                shop_partner_id:req.body.shop_partner_id, //ไอดีคู่ค้า
+            },{new:true});
+
+            if(edit){
+                return res.status(200).json({message:"แก้ไขร้านค้าสำเร็จ",data:edit,status:true});
+            }else{
+                return res.status(400).json({message:"แก้ไขร้านค้าไม่สำเร็จ",status:false});
+            }
+     
     }catch(error){
         return res.status(500).json({message:error.message, status: false});
     }
