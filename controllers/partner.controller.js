@@ -783,6 +783,11 @@ module.exports.logo = async (req, res) => {
 
         //ไฟล์รูป
         image = reqFiles[0];
+      } else {
+        return res.json({
+          message: "not found any files",
+          status: false
+        })
       }
 
       const data = {
