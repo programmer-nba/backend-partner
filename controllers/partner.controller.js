@@ -31,35 +31,34 @@ module.exports.register = async (req, res) => {
     const add = await data.save();
     // ส่ง request ไปยัง API อื่นๆ โดยให้ url, method, headers และ data ตามที่ต้องการ
     
-    const apiResponse = await axios.post(
-      `${process.env.API_OFFICE}/partners/register`,
-      {
-        // ข้อมูลที่ต้องการส่งไปยัง API อื่นๆ
-        _id: add._id,
-        username: add.username,
-        password: add.password,
-        antecedent: add.antecedent,
-        partner_name: add.partner_name,
-        partner_phone: add.partner_phone,
-        partner_email: add.partner_email,
-        partner_iden_number: add.partner_iden_number,
-        partner_address: add.partner_address,
-        partner_province: add.partner_province,
-        partner_amphure: add.partner_amphure,
-        partner_district: add.partner_district,
-        partner_postcode: add.partner_postcode,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    if(apiResponse.status ==200 && add){
+    // const apiResponse = await axios.post(
+    //   `${process.env.API_OFFICE}/partners/register`,
+    //   {
+    //     // ข้อมูลที่ต้องการส่งไปยัง API อื่นๆ
+    //     _id: add._id,
+    //     username: add.username,
+    //     password: add.password,
+    //     antecedent: add.antecedent,
+    //     partner_name: add.partner_name,
+    //     partner_phone: add.partner_phone,
+    //     partner_email: add.partner_email,
+    //     partner_iden_number: add.partner_iden_number,
+    //     partner_address: add.partner_address,
+    //     partner_province: add.partner_province,
+    //     partner_amphure: add.partner_amphure,
+    //     partner_district: add.partner_district,
+    //     partner_postcode: add.partner_postcode,
+    //   },
+    //   {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   });
+    if(add){
       return res.status(200).send({
         status: true,
         message: "คุณได้สร้างไอดี Partner เรียบร้อย",
         data: add,
-        office:apiResponse.data
       });
     }else{
       return res.status(200).send({
@@ -340,10 +339,7 @@ module.exports.edit = async (req, res) => {
 
     const data = {
       username: req.body.username,
-      password:
-        req.body.password != undefined && req.body.password != ""
-          ? bcrypt.hashSync(req.body.password, 10)
-          : partner.password,
+      password:req.body.password != undefined && req.body.password != ""? bcrypt.hashSync(req.body.password, 10): partner.password,
       antecedent: req.body.antecedent,
       partner_name: req.body.partner_name,
       partner_phone: req.body.partner_phone,
@@ -367,46 +363,46 @@ module.exports.edit = async (req, res) => {
     const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
       new: true,
     });
-    // ส่ง request ไปยัง API อื่นๆ โดยให้ url, method, headers และ data ตามที่ต้องการ
-    const apiResponse = await axios
-      .put(
-        `${process.env.API_OFFICE}/partners/wait/${req.params.id}`,
-        {
-          // ข้อมูลที่ต้องการส่งไปยัง API อื่นๆ
-          username: req.body.username,
-          password:
-            req.body.password != undefined && req.body.password != ""
-              ? bcrypt.hashSync(req.body.password, 10)
-              : partner.password,
-          antecedent: req.body.antecedent,
-          partner_name: req.body.partner_name,
-          partner_phone: req.body.partner_phone,
-          partner_email: req.body.partner_email,
-          partner_iden_number: req.body.partner_iden_number,
-          partner_address: req.body.partner_address,
-          partner_district: req.body.partner_district, //ตำบล
-          partner_amphure: req.body.partner_amphure, //อำเภอ
-          partner_province: req.body.partner_province, //จังหวัด
-          partner_postcode: req.body.partner_postcode, //รหัสไปรษณีย์
+    // // ส่ง request ไปยัง API อื่นๆ โดยให้ url, method, headers และ data ตามที่ต้องการ
+    // const apiResponse = await axios
+    //   .put(
+    //     `${process.env.API_OFFICE}/partners/wait/${req.params.id}`,
+    //     {
+    //       // ข้อมูลที่ต้องการส่งไปยัง API อื่นๆ
+    //       username: req.body.username,
+    //       password:
+    //         req.body.password != undefined && req.body.password != ""
+    //           ? bcrypt.hashSync(req.body.password, 10)
+    //           : partner.password,
+    //       antecedent: req.body.antecedent,
+    //       partner_name: req.body.partner_name,
+    //       partner_phone: req.body.partner_phone,
+    //       partner_email: req.body.partner_email,
+    //       partner_iden_number: req.body.partner_iden_number,
+    //       partner_address: req.body.partner_address,
+    //       partner_district: req.body.partner_district, //ตำบล
+    //       partner_amphure: req.body.partner_amphure, //อำเภอ
+    //       partner_province: req.body.partner_province, //จังหวัด
+    //       partner_postcode: req.body.partner_postcode, //รหัสไปรษณีย์
 
-          /// บริษัท
-          partner_company_name: req.body.partner_company_name,
-          partner_company_number: req.body.partner_company_number,
-          partner_company_address: req.body.partner_company_address,
-          partner_company_district: req.body.partner_company_district, //ตำบล
-          partner_company_amphure: req.body.partner_company_amphure, //อำเภอ
-          partner_company_province: req.body.partner_company_province, //จังหวัด
-          partner_company_postcode: req.body.partner_company_postcode, //รหัสไปรษณีย์
-          partner_company_phone: req.body.partner_company_phone,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if(apiResponse.status ==200 && edit){
-        return res.status(200).send({ status: true, data: edit,office:apiResponse.data,message: "แก้ไขข้อมูลสำเร็จ" });
+    //       /// บริษัท
+    //       partner_company_name: req.body.partner_company_name,
+    //       partner_company_number: req.body.partner_company_number,
+    //       partner_company_address: req.body.partner_company_address,
+    //       partner_company_district: req.body.partner_company_district, //ตำบล
+    //       partner_company_amphure: req.body.partner_company_amphure, //อำเภอ
+    //       partner_company_province: req.body.partner_company_province, //จังหวัด
+    //       partner_company_postcode: req.body.partner_company_postcode, //รหัสไปรษณีย์
+    //       partner_company_phone: req.body.partner_company_phone,
+    //     },
+    //     {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //     }
+    //   );
+      if(edit){
+        return res.status(200).send({ status: true, data: edit,message: "แก้ไขข้อมูลสำเร็จ" });
       }else{
         return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
       }
@@ -495,18 +491,18 @@ module.exports.iden = async (req, res) => {
         new: true,
       });
       ///
-      const apiResponse = await axios
-        .put(
-          `${process.env.API_OFFICE}/partners/upIden/${req.params.id}`,
-          { partner_iden: image },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+      // const apiResponse = await axios
+      //   .put(
+      //     `${process.env.API_OFFICE}/partners/upIden/${req.params.id}`,
+      //     { partner_iden: image },
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //     }
+      //   );
       ////
-      if(apiResponse.status ==200 && edit){
+      if(edit){
         return res.status(200).send({
           status: true,
           message: "คุณได้รูปภาพเรียบร้อยแล้ว",
@@ -554,18 +550,18 @@ module.exports.filecompany = async (req, res) => {
       const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
-      const apiResponse = await axios
-        .put(
-          `${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`,
-          { filecompany: image },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+      // const apiResponse = await axios
+      //   .put(
+      //     `${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`,
+      //     { filecompany: image },
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //     }
+      //   );
 
-        if(apiResponse.status ==200 && edit){
+        if(edit){
           return res.status(200).send({
             status: true,
             message: "คุณได้รูปภาพเรียบร้อยแล้ว",
@@ -796,17 +792,18 @@ module.exports.logo = async (req, res) => {
       const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
-      const apiResponse = await axios
-        .put(
-          `${process.env.API_OFFICE}/partners/upLogo/${req.params.id}`,
-          { logo: image },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if(apiResponse.status ==200 && edit){
+      // const apiResponse = await axios
+      //   .put(
+      //     `${process.env.API_OFFICE}/partners/upLogo/${req.params.id}`,
+      //     { logo: image },
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //     }
+      //   );
+
+        if(edit){
           return res.status(200).send({
             status: true,
             message: "คุณได้รูปภาพเรียบร้อยแล้ว",
@@ -865,17 +862,17 @@ module.exports.addsignature = async (req, res) => {
         { signature: partner.signature },
         { new: true }
       );
-      const apiResponse = await axios
-        .put(
-          `${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`,
-          { signature: partner.signature },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if(apiResponse.status ==200 && edit){
+      // const apiResponse = await axios
+      //   .put(
+      //     `${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`,
+      //     { signature: partner.signature },
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //     }
+      //   );
+        if(edit){
           return res.status(200).send({
             status: true,
             message: "คุณได้รูปภาพเรียบร้อยแล้ว",
@@ -938,17 +935,17 @@ module.exports.editsignature = async (req, res) => {
         { signature: partner.signature },
         { new: true }
       );
-      const apiResponse = await axios
-        .put(
-          `${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`,
-          { signature: partner.signature },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      if(apiResponse.status ==200 && edit){
+      // const apiResponse = await axios
+      //   .put(
+      //     `${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`,
+      //     { signature: partner.signature },
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //     }
+      //   );
+      if(edit){
         return res.status(200).send({
           status: true,
           message: "คุณได้รูปภาพเรียบร้อยแล้ว",
@@ -983,22 +980,21 @@ module.exports.deletesignature = async (req, res) => {
       { signature: partner.signature },
       { new: true }
     );
-    const apiResponse = await axios
-      .put(
-        `${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`,
-        { signature: partner.signature },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if(apiResponse.status ==200 && edit){
+    // const apiResponse = await axios
+    //   .put(
+    //     `${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`,
+    //     { signature: partner.signature },
+    //     {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //     }
+    //   );
+      if(edit){
         return res.status(200).send({
           status: true,
           message: "คุณได้ลบภาพลายเซ็นแล้ว",
           data: edit,
-          office:apiResponse.data
         });
       }else{
         return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
@@ -1021,22 +1017,21 @@ module.exports.WaitForApproval = async (req, res) => {
     }
     updateStatus.status_appover = "รออนุมัติ";
     await updateStatus.save();
-    const apiResponse = await axios
-    .put(
-      `${process.env.API_OFFICE}/partners/updateStatus/${req.params.id}`,
-      { },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if(apiResponse.status ==200 && updateStatus){
+    // const apiResponse = await axios
+    // .put(
+    //   `${process.env.API_OFFICE}/partners/updateStatus/${req.params.id}`,
+    //   { },
+    //   {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   }
+    // );
+    if(updateStatus){
       return res.status(200).send({
         status: true,
         message: "เพิ่มข้อมูล รอ อนุมัติสำเร็จ",
         data: updateStatus,
-        office:apiResponse.data
       });
     }else{
       return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
@@ -1070,4 +1065,7 @@ module.exports.sendtypecontract = async (req, res) => {
     return res.status(500).send({ status: false, error: error.message });
   }
 }
+
+
+
 

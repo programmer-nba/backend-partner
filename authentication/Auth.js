@@ -64,7 +64,7 @@ const public = async(req, res, next)=>{
         // ทำการยืนยันสิทธิ์ token
         const decoded =  jwt.verify(token,secretKey)
         // console.log(decoded)
-        if(decoded.code =="shop" || decoded.code =="service" || decoded.code =="office"){
+        if(decoded.code =="shop" || decoded.code =="service" || decoded.code =="office" || decoded.code =="contract"){
             
             req.users = decoded.data
             next();

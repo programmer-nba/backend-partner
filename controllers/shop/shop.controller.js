@@ -145,7 +145,11 @@ module.exports.getpublictoken = async (req, res) => {
         {
             token = jwt.sign({code:"office",name:"office",key:"office"},process.env.SHOP_SECRET_KET)
         }
-        else{
+        else if(typecode =="contract"){
+            token = jwt.sign({code:"contract",name:"contract",key:"contract"},process.env.SHOP_SECRET_KET)
+        }
+        else
+        {
             return res.status(400).json({message:"ไม่พบ typecode ที่ต้องการ",status:false});
         }
         return res.status(200).json({message:"สร้าง token สำเร็จ",data:token,status:true});

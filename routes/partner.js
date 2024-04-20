@@ -42,4 +42,19 @@ router.put("/deletesignature/:id",Partner.deletesignature);
 //เพ่ิมสถาณะ
 router.put("/WaitForApproval/:id",Partner.WaitForApproval)
 router.put("/sendtypecontract/:id",Partner.sendtypecontract);
+
+
+// office 
+//ดึงข้อมูล partner ทั้งหมด 
+router.get('/officegetall/',Auth.public,Partner.getall)
+//อนุมัติ
+router.put("/officeaccept/:id",Auth.public,Partner.accept);
+
+
+// สัญญา
+// ดึงข้อมูล partner ทั้งหมด
+router.get('/contractgetall/',Auth.public,Partner.getall)
+
+
+
 module.exports = router;
