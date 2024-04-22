@@ -359,6 +359,7 @@ module.exports.edit = async (req, res) => {
       partner_company_province: req.body.partner_company_province, //จังหวัด
       partner_company_postcode: req.body.partner_company_postcode, //รหัสไปรษณีย์
       partner_company_phone: req.body.partner_company_phone,
+      partner_company_email : req.body.partner_company_email,
     };
     const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
       new: true,
@@ -819,6 +820,58 @@ module.exports.logo = async (req, res) => {
     return res.status(500).send({ status: false, error: error.message });
   }
 };
+
+
+//เพิ่มตราประทับบริษัท
+module.exports. companyseal = async (req, res) => {
+  try{
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+      const reqFiles = [];
+      const result = [];
+      if (err) {
+        return res.status(500).send(err);
+      }
+      let image = ""; // ตั้งตัวแปรรูป
+      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+      if (req.files) {
+        const url = req.protocol + "://" + req.get("host");
+        for (var i = 0; i < req.files.length; i++) {
+          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
+          result.push(src);
+
+          //   reqFiles.push(url + "/public/" + req.files[i].filename);
+        }
+
+        //ไฟล์รูป
+        image = reqFiles[0];
+      }
+
+      const data = {
+        companyseal: image,
+      };
+
+      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
+        new: true,
+      });
+
+        if(edit){
+          return res.status(200).send({
+            status: true,
+            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+            data: edit,
+            office:apiResponse.data
+          });
+        }else{
+          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+        }
+      
+    });
+  }catch(error){
+    return res.status(500).send({ status: false, error: error.message });
+  }
+};
+
 
 // เพิ่มรูปภาพลายเซ็นต์
 module.exports.addsignature = async (req, res) => {

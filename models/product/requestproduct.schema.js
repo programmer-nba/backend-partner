@@ -23,6 +23,9 @@ const RequestProductSchema = new mongoose.Schema(
     }],default:[]}, //รายละเอียดสถานะการขอสินค้า
     office_id:{type:String,default:""}, //คนอนุมัติ
     office_name:{type:String,default:""}, //ชื่อคนอนุมัติ
+    
+    
+
   },
   {timestamps: true}
 );

@@ -43,6 +43,10 @@ const partnerSchema = new mongoose.Schema(
     filecompany3: { type: String, default: "" },
     filecompany4: { type: String, default: "" },
     logo: { type: String, default: "" },
+    //ตราประทับบริษัท
+    companyseal :{ type: String, default: ""},
+    //อีเมล์บริษัท
+    partner_company_email: { type: String, default: "" },
     // ลายเซ็นต์
     signature: {
       type: [

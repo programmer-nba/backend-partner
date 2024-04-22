@@ -21,6 +21,7 @@ module.exports.add = async (req, res) => {
         const data = new Productshop({
             productshop_name: req.body.productshop_name, //ชื่อสินค้า
             productshop_price: req.body.productshop_price, //ราคาสินค้า
+            productshop_unit: req.body.productshop_unit, //หน่วยสินค้า
             shop_id:req.body.shop_id, //ไอดีร้านค้า
         });
         const add = await data.save();
@@ -77,6 +78,7 @@ module.exports.edit = async (req, res) => {
         const edit = await Productshop.findByIdAndUpdate(req.params.id,{
             productshop_name: req.body.productshop_name, //ชื่อสินค้า
             productshop_price: req.body.productshop_price, //ราคาสินค้า
+            productshop_unit: req.body.productshop_unit, //หน่วยสินค้า
             shop_id:req.body.shop_id, //ไอดีร้านค้า
         },{new:true});
         if(edit){

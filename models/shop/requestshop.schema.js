@@ -35,6 +35,10 @@ const RequestShopSchema = new mongoose.Schema(
     office_id:{type:String,default:""}, //คนอนุมัติ
     office_name:{type:String,default:""}, //ชื่อคนอนุมัติ
 
+    //เพิ่มเติม
+    shop_nameeng:{type:String,default:""}, //ชื่อภาษาอังกฤษ
+    shop_telephone:{type:String,default:""}, //เบอร์โทรติดต่อร้านค้า
+    shop_idline:{type:String,default:""}, //ไอดีไลน์ร้านค้า
   },
   {timestamps: true}
 );

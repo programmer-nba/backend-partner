@@ -40,6 +40,10 @@ module.exports.add = async (req, res) => {
             
             request_status:false,
             request_status_detail:request_status_detail,
+
+            shop_nameeng:req.body.shop_nameeng, //ชื่อภาษาอังกฤษ
+            shop_telephone:req.body.shop_telephone, //เบอร์โทรติดต่อร้านค้า
+            shop_idline:req.body.shop_idline, //ไอดีไลน์ร้านค้า
         });
         const add = await data.save();
         return res.status(200).json({ status:true,message: "คำร้องขอเปิดร้านค้าสำเร็จ",data: add });
@@ -95,6 +99,10 @@ module.exports.update = async (req, res) => {
                 nametax:req.body.nametax, //ชื่อผู้เสียภาษี
                 taxid:req.body.taxid, //เลขประจำตัวผู้เสียภาษี
                 addresstax:req.body.addresstax,
+
+                shop_nameeng:req.body.shop_nameeng, //ชื่อภาษาอังกฤษ
+                shop_telephone:req.body.shop_telephone, //เบอร์โทรติดต่อร้านค้า
+                shop_idline:req.body.shop_idline, //ไอดีไลน์ร้านค้า
             }
            
             const edit = await Requestshop.findByIdAndUpdate(req.params.id,data,{new:true});
@@ -148,7 +156,10 @@ module.exports.approve = async (req, res) => {
             taxid:data.taxid, //เลขประจำตัวผู้เสียภาษี
             addresstax:data.addresstax,
             shop_partner_id:data.shop_partner_id, //ไอดีคู่ค้า
-            shop_status:true
+            shop_status:true,
+            shop_nameeng:data.shop_nameeng, //ชื่อภาษาอังกฤษ
+            shop_telephone:data.shop_telephone, //เบอร์โทรติดต่อร้านค้า
+            shop_idline:data.shop_idline, //ไอดีไลน์ร้านค้า
         });
         const add = await shop.save();
         if(data && add )

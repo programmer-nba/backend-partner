@@ -29,6 +29,8 @@ router.put("/filecompany4/:id",Auth.all,Partner.filecompany4);
 
 router.put("/logo/:id",Auth.all,Partner.logo);
 
+router.put("/companyseal/:id",Auth.all,Partner.companyseal);
+ 
 /// ส่ง opt 
 router.get("/sendotp/:id",Partner.sendotp);
 router.put("/check/:id",Partner.check)
@@ -42,6 +44,7 @@ router.put("/deletesignature/:id",Partner.deletesignature);
 //เพ่ิมสถาณะ
 router.put("/WaitForApproval/:id",Partner.WaitForApproval)
 router.put("/sendtypecontract/:id",Partner.sendtypecontract);
+
 
 
 // office 

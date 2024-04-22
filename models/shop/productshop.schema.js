@@ -9,6 +9,8 @@ const ProductshopSchema = new mongoose.Schema(
     productshop_price: { type: Number, required: true }, //ราคาสินค้า
     productshop_status: { type: Boolean,required:false ,default:true}, //สถานะสินค้า
     shop_id:{type: mongoose.Schema.Types.ObjectId,ref:'shop',default:null}, //ไอดีร้านค้า
+    productshop_unit: { type: String, default:""}, //หน่วยสินค้า
+
   },
   {timestamps: true}
 );

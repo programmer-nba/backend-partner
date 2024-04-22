@@ -66,6 +66,10 @@ module.exports.edit = async (req, res) => {
                 taxid:req.body.taxid, //เลขประจำตัวผู้เสียภาษี
                 addresstax:req.body.addresstax,
                 shop_partner_id:req.body.shop_partner_id, //ไอดีคู่ค้า
+
+                shop_nameeng:req.body.shop_nameeng, //ชื่อภาษาอังกฤษ
+                shop_telephone:req.body.shop_telephone, //เบอร์โทรติดต่อร้านค้า
+                shop_idline:req.body.shop_idline, //ไอดีไลน์ร้านค้า
             },{new:true});
 
             if(edit){

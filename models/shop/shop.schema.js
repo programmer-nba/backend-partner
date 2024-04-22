@@ -26,6 +26,11 @@ const ShopSchema = new mongoose.Schema(
     },required:false,default:null},
     shop_status :{type:Boolean,default:true}, //สถานะ (true: เปิด , false: ปิด)
     shop_partner_id:{type: mongoose.Schema.Types.ObjectId,ref:'partner',default:null}, //ไอดีคู่ค้า
+
+     //เพิ่มเติม
+     shop_nameeng:{type:String,default:""}, //ชื่อภาษาอังกฤษ
+     shop_telephone:{type:String,default:""}, //เบอร์โทรติดต่อร้านค้า
+     shop_idline:{type:String,default:""}, //ไอดีไลน์ร้านค้า
   },
   {timestamps: true}
 );
