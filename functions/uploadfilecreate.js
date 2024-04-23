@@ -6,6 +6,9 @@ const CLIENT_SECRET = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
 const REDIRECT_URI = process.env.GOOGLE_DRIVE_REDIRECT_URI;
 const REFRESH_TOKEN = process.env.GOOGLE_DRIVE_REFRESH_TOKEN;
 
+
+
+
 const oauth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,
@@ -84,5 +87,9 @@ async function deleteFile(fileId) {
   // console.log(res);
   return res.data;
 }
+
+
+
+
 
 module.exports = {uploadFileCreate, deleteFile};
