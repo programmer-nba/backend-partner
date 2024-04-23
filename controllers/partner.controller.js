@@ -930,7 +930,7 @@ module.exports.addsignature = async (req, res) => {
             status: true,
             message: "คุณได้รูปภาพเรียบร้อยแล้ว",
             data: edit,
-            office:apiResponse.data
+           
           });
         }else{
           return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
