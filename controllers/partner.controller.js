@@ -484,7 +484,13 @@ module.exports.iden = async (req, res) => {
 
         //ไฟล์รูป
         image = reqFiles[0];
+        const partner = await Partner.findOne({ _id: req.params.id });
+        if(partner.partner_iden != ""){
+          const deletefile = await deleteFile(partner.partner_iden);
+        }
       }
+
+      
       const data = {
         partner_iden: image,
       };
@@ -542,8 +548,12 @@ module.exports.filecompany = async (req, res) => {
 
         //ไฟล์รูป
         image = reqFiles[0];
+        const partner = await Partner.findOne({ _id: req.params.id });
+        if(partner.filecompany != ""){
+          const deletefile = await deleteFile(partner.filecompany);
+        }
       }
-
+      
       const data = {
         filecompany: image,
       };
@@ -567,7 +577,7 @@ module.exports.filecompany = async (req, res) => {
             status: true,
             message: "คุณได้รูปภาพเรียบร้อยแล้ว",
             data: edit,
-            office:apiResponse.data
+           
           });
         }else{
           return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
@@ -601,8 +611,12 @@ module.exports.filecompany2 = async (req, res) => {
 
         //ไฟล์รูป
         image = reqFiles[0];
+        const partner = await Partner.findOne({ _id: req.params.id });
+        if(partner.filecompany2 != ""){
+          const deletefile = await deleteFile(partner.filecompany2);
+        }
       }
-
+      
       const data = {
         filecompany2: image,
       };
@@ -660,8 +674,12 @@ module.exports.filecompany3 = async (req, res) => {
 
         //ไฟล์รูป
         image = reqFiles[0];
+        const partner = await Partner.findOne({ _id: req.params.id });
+        if(partner.filecompany3 != ""){ 
+          const deletefile = await deleteFile(partner.filecompany3);
+        }
       }
-
+      
       const data = {
         filecompany3: image,
       };
@@ -719,7 +737,12 @@ module.exports.filecompany4 = async (req, res) => {
 
         //ไฟล์รูป
         image = reqFiles[0];
+        const partner = await Partner.findOne({ _id: req.params.id });
+        if(partner.filecompany4 != ""){
+          const deletefile = await deleteFile(partner.filecompany4);
+        }
       }
+      
 
       const data = {
         filecompany4: image,
@@ -780,6 +803,10 @@ module.exports.logo = async (req, res) => {
 
         //ไฟล์รูป
         image = reqFiles[0];
+        const partner = await Partner.findOne({ _id: req.params.id });
+        if(partner.logo != ""){
+          const deletefile = await deleteFile(partner.logo);
+        }
       } else {
         return res.json({
           message: "not found any files",
@@ -809,7 +836,7 @@ module.exports.logo = async (req, res) => {
             status: true,
             message: "คุณได้รูปภาพเรียบร้อยแล้ว",
             data: edit,
-            office:apiResponse.data
+          
           });
         }else{
           return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
@@ -845,12 +872,16 @@ module.exports. companyseal = async (req, res) => {
 
         //ไฟล์รูป
         image = reqFiles[0];
+        const partner = await Partner.findOne({ _id: req.params.id });
+        if(partner.companyseal != ""){
+          const deletefile = await deleteFile(partner.companyseal);
+        }
       }
 
       const data = {
         companyseal: image,
       };
-
+     
       const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
@@ -860,7 +891,6 @@ module.exports. companyseal = async (req, res) => {
             status: true,
             message: "คุณได้รูปภาพเรียบร้อยแล้ว",
             data: edit,
-            office:apiResponse.data
           });
         }else{
           return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
@@ -896,6 +926,11 @@ module.exports.addsignature = async (req, res) => {
 
         //ไฟล์รูป
         image = reqFiles[0];
+        const partner = await Partner.findById(req.params.id);
+        if(partner.signature !='')
+        {
+          const deletefile = await deleteFile(partner.signature);
+        }
       }
 
       const partner = await Partner.findById(req.params.id);
@@ -965,6 +1000,11 @@ module.exports.editsignature = async (req, res) => {
 
         //ไฟล์รูป
         image = reqFiles[0];
+        const partner = await Partner.findById(req.params.id);
+        if(partner.signature !='')
+        {
+          const deletefile = await deleteFile(partner.signature);
+        }
       }
 
       const partner = await Partner.findById(req.params.id);
@@ -1003,7 +1043,7 @@ module.exports.editsignature = async (req, res) => {
           status: true,
           message: "คุณได้รูปภาพเรียบร้อยแล้ว",
           data: edit,
-          office:apiResponse.data
+      
         });
       }else{
         return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
