@@ -378,7 +378,7 @@ module.exports.gettruestatus = async (req, res) => {
             return res.status(400).json({message:"ดึงข้อมูลสินค้าไม่สำเร็จ",status:false});
         }
     }catch(error){
-        console.log(error.message)
+      
         return res.status(500).json({message:error.message, status: false});
     }
 }
