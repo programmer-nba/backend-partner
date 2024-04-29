@@ -39,4 +39,10 @@ router.get('/office/byshopid/:id', userAuth.public, Productshop.getbyshopid);
 router.put('/office/:id',userAuth.public, Productshop.edit);
 
 
+
+// tossagunshop
+router.get('/tossagunshop/productbyshopid/:id', userAuth.public, Productshop.getbyshopid);
+router.get('/tossagunshop/productbyid/:id', userAuth.public, Productshop.getbyid);
+
+
 module.exports = router;
