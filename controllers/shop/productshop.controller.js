@@ -111,6 +111,7 @@ module.exports.addimgproduct = async (req, res) => {
     try{
     let upload = multer({ storage: storage }).array("image", 20);
     upload(req, res, async function (err) {
+        console.log(req.files)
         const reqFiles = [];
         const result = [];
         if (err) {

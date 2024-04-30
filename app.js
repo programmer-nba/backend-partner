@@ -47,6 +47,10 @@ app.use(prefix + '/productshop', require('./routes/shop/productshop'));
 //ข้อมูล one stop service
 app.use(prefix + '/onestopservice', require('./routes/tossagunshop/onestopservice'));
 
+//pos ร้านค้า
+app.use(prefix + '/posshop', require('./routes/shop/posshop'));
+
+
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*'); // หรือกำหนด origin ที่เฉพาะเจาะจง
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
