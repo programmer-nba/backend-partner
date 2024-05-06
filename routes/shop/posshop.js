@@ -29,4 +29,8 @@ router.put('/success/:id', userAuth.partner, Posshop.success);
 //เปลี่ยนสถานะ เป็น ยกเลิกออเดอร์
 router.put('/cancel/:id', userAuth.partner, Posshop.cancel);
 
+// report รายได้ร้านค้า
+router.put('/report/:shop_id', userAuth.partner, Posshop.report);
+
+
 module.exports = router;

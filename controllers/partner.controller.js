@@ -262,7 +262,6 @@ module.exports.me = async (req, res) => {
     }
 
     const decodded = jwt.verify(token, process.env.SECRET_KEY);
-    console.log(decodded);
     const dataResponse = {
       _id: decodded._id,
       username: decodded.username,

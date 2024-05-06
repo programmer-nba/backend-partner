@@ -158,13 +158,22 @@ module.exports.createShopEmployee = async (req, res) => {
         "Content-Type": "application/json",
       },
     });
+    console.log("ควย")
+    //error.response.status
+   
     if(apiResponse?.data?.status == true){
       return res.status(200).json({ message: "เพิ่มพนักงานสำเร็จ", data: apiResponse.data.data, status: true });
     }else{
       return res.status(400).json({ message: "เพิ่มพนักงานไม่สำเร็จ", status: false });
     }
   }catch(error){
-    return res.status(500).send({ status: false, error: error.message });
+   
+    if(error.response.status == 409){
+      return res.status(409).send({ status: false, error: "รหัสซ้ำกรุณาเปลี่ยนใหม่" });
+    }else{
+      return res.status(500).send({ status: false, error: error.message });
+    }
+    
   }
 }
 
@@ -230,13 +239,20 @@ module.exports.editShopEmployee = async (req, res) => {
         "Content-Type": "application/json",
       },
     });
+    
     if(apiResponse?.data?.status == true){
       return res.status(200).json({ message: "แก้ไขข้อมูลพนักงานสำเร็จ", data: apiResponse.data.data, status: true });
-    }else{
+    }
+    
+    else{
       return res.status(400).json({ message: "แก้ไขข้อมูลพนักงานไม่สำเร็จ", status: false });
     }
   }catch(error){
-    return res.status(500).send({ status: false, error: error.message });
+    if(error.response.status == 409){
+      return res.status(409).send({ status: false, error: "รหัสซ้ำกรุณาเปลี่ยนใหม่" });
+    }else{
+      return res.status(500).send({ status: false, error: error.message });
+    }
   }
 }
 

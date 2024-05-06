@@ -1,4 +1,9 @@
 const {Posorder} = require('../../models/shop/posorder.schema');
+const dayjs = require('dayjs');
+
+
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 // สร้างออเดอร์ pos 
 exports.create = async (req, res) => {
@@ -157,6 +162,346 @@ exports.cancel = async (req, res) => {
     }
 }
 
+
+// report รายได้ร้านค้า
+exports.report = async (req, res) => {
+    try{
+        
+        const id = req.body.id;
+        const shop_id = new ObjectId(req.params.shop_id);
+        if(id =='day')
+        {
+            
+            //ยอดขายประจำวัน และ  //จำนวนออเดอร์ต่อวัน
+            let reportorder = await Posorder.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
+                            $gte: dayjs().startOf('day').toDate(),
+                            $lt: dayjs().endOf('day').toDate()
+                        },
+                        "pos_status.status": "ออเดอร์สำเร็จ",
+                        shop_id: shop_id
+
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y/%m/%d", date: "$createdAt" }},
+                        //ยอดขาย
+                        total: { $sum: "$pos_alltotal" },
+                        //จำนวนออเดอร์
+                        count: { $sum: 1 },
+                        //ยอดขายที่ผ่านแพลต์ฟอร์ม
+                        platform: { $sum: { $cond: { if: { $ne: ["$pos_payment", "จ่ายเงินสด"] }, then: "$pos_alltotal", else: 0 } } },
+                        //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
+                        notplatform: { $sum: { $cond: { if: { $eq: ["$pos_payment", "จ่ายเงินสด"]  }, then: "$pos_alltotal", else: 0 } } }
+
+                    }
+                }
+            ])
+
+            if(reportorder.length == 0){
+                reportorder =[{
+                    _id: dayjs().startOf('day').format("YYYY/MM/DD"),
+                    total: 0,
+                    count: 0,
+                    platform: 0,
+                    notplatform: 0
+                }]
+            }
+
+            //สินค้าขายดี ประจำวัน
+            let reportproduct = await Posorder.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
+                            $gte: dayjs().startOf('day').toDate(),
+                            $lt: dayjs().endOf('day').toDate()
+                        },
+                        "pos_status.status": "ออเดอร์สำเร็จ",
+                        shop_id: shop_id
+                    }
+                },
+                {
+                    $unwind: "$pos_order"
+                },
+                {
+                    $group: {
+                        _id: "$pos_order.productshop_id",
+                        productshop_name: { $first: "$pos_order.productshop_name" },
+                        count: { $sum: "$pos_order.productshop_qty" }
+                    }
+                }
+            ])
+           
+            //ยอดขายย้อนหลัง ประจำวัน  แสดง มา 7 วัน 
+            let reportorderback = await Posorder.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
+                            $gte: dayjs().startOf('day').subtract(7, 'day').toDate(),
+                            $lt: dayjs().endOf('day').toDate()
+                        },
+                        "pos_status.status": "ออเดอร์สำเร็จ",
+                        shop_id: shop_id
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y/%m/%d", date: "$createdAt" } },
+                        //ยอดขาย
+                        total: { $sum: "$pos_alltotal" },
+                        //จำนวนออเดอร์
+                        count: { $sum: 1 },
+                        //ยอดขายที่ผ่านแพลต์ฟอร์ม
+                        platform: { $sum: { $cond: { if: { $ne: ["$pos_payment", "จ่ายเงินสด"] }, then: "$pos_alltotal", else: 0 } } },
+                        //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
+                        notplatform: { $sum: { $cond: { if: { $eq: ["$pos_payment", "จ่ายเงินสด"]  }, then: "$pos_alltotal", else: 0 } } }
+
+                    }
+                }
+            ])
+            if(reportorderback.length == 0){
+                reportorderback =[{
+                    _id: dayjs().startOf('day').format("YYYY/MM/DD"),
+                    total: 0,
+                    count: 0,
+                    platform: 0,
+                    notplatform: 0
+                }]
+            }
+
+            return res.status(200).send({reportorder:reportorder,reportproduct:reportproduct,reportorderback:reportorderback,status:true,message:"แสดงข้อมูลสำเร็จ"});
+
+        }
+        else if(id =='month')
+        {
+            //ยอดขายประจำเดือน และ  //จำนวนออเดอร์ต่อเดือน
+            let reportorder = await Posorder.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
+                            $gte: dayjs().startOf('month').toDate(),
+                            $lt: dayjs().endOf('month').toDate()
+                        },
+                        "pos_status.status": "ออเดอร์สำเร็จ",
+                        shop_id: shop_id
+
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y/%m/01", date: "$createdAt" }} ,
+                        //ยอดขาย
+                        total: { $sum: "$pos_alltotal" },
+                        //จำนวนออเดอร์
+                        count: { $sum: 1 },
+                        //ยอดขายที่ผ่านแพลต์ฟอร์ม
+                        platform: { $sum: { $cond: { if: { $ne: ["$pos_payment", "จ่ายเงินสด"] }, then: "$pos_alltotal", else: 0 } } },
+                        //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
+                        notplatform: { $sum: { $cond: { if: { $eq: ["$pos_payment", "จ่ายเงินสด"]  }, then: "$pos_alltotal", else: 0 } } }
+
+                    }
+                }
+            ])
+            if(reportorder.length == 0){
+                reportorder =[{
+                    _id: dayjs().startOf('month').format("YYYY/MM/01"),
+                    total: 0,
+                    count: 0,
+                    platform: 0,
+                    notplatform: 0
+                }]
+            }
+
+            //สินค้าขายดี ประจำเดือน
+            let reportproduct = await Posorder.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
+                            $gte: dayjs().startOf('month').toDate(),
+                            $lt: dayjs().endOf('month').toDate()
+                        },
+                        "pos_status.status": "ออเดอร์สำเร็จ",
+                        shop_id: shop_id
+                    }
+                },
+                {
+                    $unwind: "$pos_order"
+                },
+                {
+                    $group: {
+                        _id: "$pos_order.productshop_id",
+                        productshop_name: { $first: "$pos_order.productshop_name" },
+                        count: { $sum: "$pos_order.productshop_qty" }
+                    }
+                }
+            ])
+            
+           
+            //ยอดขายย้อนหลัง ประจำเดือน  แสดง มา 12 เดือน
+            let reportorderback = await Posorder.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
+                            $gte: dayjs().startOf('month').subtract(12, 'month').toDate(),
+                            $lt: dayjs().endOf('month').toDate()
+                        },
+                        "pos_status.status": "ออเดอร์สำเร็จ",
+                        shop_id: shop_id
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y/%m/01", date: "$createdAt" } },
+                        //ยอดขาย
+                        total: { $sum: "$pos_alltotal" },
+                        //จำนวนออเดอร์
+                        count: { $sum: 1 },
+                        //ยอดขายที่ผ่านแพลต์ฟอร์ม
+                        platform: { $sum: { $cond: { if: { $ne: ["$pos_payment", "จ่ายเงินสด"] }, then: "$pos_alltotal", else: 0 } } },
+                        //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
+                        notplatform: { $sum: { $cond: { if: { $eq: ["$pos_payment", "จ่ายเงินสด"]  }, then: "$pos_alltotal", else: 0 } } }
+
+                    }
+                }
+            ])
+            if(reportorderback.length == 0){
+                reportorderback =[{
+                    _id: dayjs().startOf('month').format("YYYY/MM/01"),
+                    total: 0,
+                    count: 0,
+                    platform: 0,
+                    notplatform: 0
+                }]
+            }
+
+            return res.status(200).send({reportorder:reportorder,reportproduct:reportproduct,reportorderback:reportorderback,status:true,message:"แสดงข้อมูลสำเร็จ"});
+
+        }
+        else if(id =='year'){
+
+            //ยอดขายประจำปี และ  //จำนวนออเดอร์ต่อปี
+            let reportorder = await Posorder.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
+                            $gte: dayjs().startOf('year').toDate(),
+                            $lt: dayjs().endOf('year').toDate()
+                        },
+                        "pos_status.status": "ออเดอร์สำเร็จ",
+                        shop_id: shop_id
+
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y/01/01", date: "$createdAt" }},
+                        //ยอดขาย
+                        total: { $sum: "$pos_alltotal" },
+                        //จำนวนออเดอร์
+                        count: { $sum: 1 },
+                        //ยอดขายที่ผ่านแพลต์ฟอร์ม
+                        platform: { $sum: { $cond: { if: { $ne: ["$pos_payment", "จ่ายเงินสด"] }, then: "$pos_alltotal", else: 0 } } },
+                        //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
+                        notplatform: { $sum: { $cond: { if: { $eq: ["$pos_payment", "จ่ายเงินสด"]  }, then: "$pos_alltotal", else: 0 } } }
+
+                    }
+                }
+            ])
+
+            if(reportorder.length == 0){
+                reportorder = [{
+                    _id: dayjs().startOf('year').format("YYYY-01-01"),
+                    total: 0,
+                    count: 0,
+                    platform: 0,
+                    notplatform: 0
+                }]
+            }
+
+            //สินค้าขายดี ประจำปี
+            let reportproduct = await Posorder.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
+                            $gte: dayjs().startOf('year').toDate(),
+                            $lt: dayjs().endOf('year').toDate()
+                        },
+                        "pos_status.status": "ออเดอร์สำเร็จ",
+                        shop_id: shop_id
+                    }
+                },
+                {
+                    $unwind: "$pos_order"
+                },
+                {
+                    $group: {
+                        _id: "$pos_order.productshop_id",
+                        productshop_name: { $first: "$pos_order.productshop_name" },
+                        count: { $sum: "$pos_order.productshop_qty" }
+                    }
+                }
+            ])
+           
+
+            //ยอดขายย้อนหลัง ประจำปี  แสดง มา 7 ปี
+            let reportorderback = await Posorder.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
+                            $gte: dayjs().startOf('year').subtract(7, 'year').toDate(),
+                            $lt: dayjs().endOf('year').toDate()
+                        },
+                        "pos_status.status": "ออเดอร์สำเร็จ",
+                        shop_id: shop_id
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y/01/01", date: "$createdAt" } },
+                        //ยอดขาย
+                        total: { $sum: "$pos_alltotal" },
+                        //จำนวนออเดอร์
+                        count: { $sum: 1 },
+                        //ยอดขายที่ผ่านแพลต์ฟอร์ม
+                        platform: { $sum: { $cond: { if: { $ne: ["$pos_payment", "จ่ายเงินสด"] }, then: "$pos_alltotal", else: 0 } } },
+                        //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
+                        notplatform: { $sum: { $cond: { if: { $eq: ["$pos_payment", "จ่ายเงินสด"]  }, then: "$pos_alltotal", else: 0 } } }
+
+                    }
+                }
+            ])
+            if(reportorderback.length == 0){
+                reportorderback =[{
+                    _id: dayjs().startOf('year').format("YYYY-01-01"),
+                    total: 0,
+                    count: 0,
+                    platform: 0,
+                    notplatform: 0
+                }]
+            }
+
+            return res.status(200).send({reportorder:reportorder,reportproduct:reportproduct,reportorderback:reportorderback,status:true,message:"แสดงข้อมูลสำเร็จ"});
+        }else{
+            return res.status(400).send({status:false,message:"กรุณาข้อมูลประเภทไม่ถูกต้อง"});
+        }
+    
+    }catch(error){
+
+        return res.status(500).send({status:false,message:error.message}); 
+    }
+}
 
 async function runreferralcode() {
 

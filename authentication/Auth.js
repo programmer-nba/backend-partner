@@ -5,6 +5,7 @@ const partner = async(req, res, next)=>{
 
         let token = req.headers["token"]
         const secretKey = "i#ngikanei;#aooldkhfa'"
+      
         //เช็ค token
         if(!token){
             return res.status(403).send({status:false,message:'token หมดอายุ'});
@@ -12,6 +13,7 @@ const partner = async(req, res, next)=>{
 
         // ทำการยืนยันสิทธิ์ token
         const decoded =  jwt.verify(token,secretKey)
+
         // console.log(decoded)
         if(decoded.position ==="partner"){
             req.users = decoded.data
