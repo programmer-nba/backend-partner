@@ -328,9 +328,7 @@ module.exports.addsubimgproduct3 = async (req, res) => {
 module.exports.getbyapprove = async (req, res) => {
     try {
         //ดึงข้อมูลคำร้องขอฝากขายสินค้าที่รออนุมัติ เช็คจาก request_status:false และ  request_status_detail ตำแหน่งสุดท้าย status รอการอนุมัติ
-        const data = await Requestproduct.find({ request_status: false }).populate({ path: 'product_partner_id', select: 'partner_name partner_company_name' });
-       
-
+        const data = await Requestproduct.find().populate({ path: 'product_partner_id', select: 'partner_name partner_company_name' });
         return res.status(200).json({ status: true, data: data });
     } catch (err) {
         return res.status(500).json({ status: false, message: err.message });
