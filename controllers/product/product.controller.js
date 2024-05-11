@@ -115,15 +115,7 @@ module.exports.edit = async (req, res) => {
             }
             
             const edit = await Product.findByIdAndUpdate(req.params.id,{
-                product_name:req.body.product_name,
-                product_status_type:req.body.product_status_type,
-                product_category:req.body.product_category,
-                product_costprice:req.body.product_costprice,
-                product_price:req.body.product_price,
-                product_store:req.body.product_store,
-                product_partner_id: (req.body.product_partner_id == undefined || req.body.product_partner_id == '') ? null : req.body.product_partner_id,
-                product_detail:req.body.product_detail,
-                product_stock:req.body.product_stock,
+                ...req.body
             },{new:true});
 
             if(edit){
