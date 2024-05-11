@@ -244,17 +244,7 @@ module.exports.editoffice = async (req, res) => {
             }
             
             const edit = await Shop.findByIdAndUpdate(req.params.id,{
-                shop_name:req.body.shop_name,
-                shop_type:req.body.shop_type,
-                address:req.body.address,
-                latitude :req.body.latitude, //ละติจูด
-                longitude:req.body.longitude, //ลองจิจูด
-                
-                taxstatus:req.body.taxstatus, //ภาษี (true: มี , false: ไม่มี)
-                nametax:req.body.nametax, //ชื่อผู้เสียภาษี
-                taxid:req.body.taxid, //เลขประจำตัวผู้เสียภาษี
-                addresstax:req.body.addresstax,
-                shop_partner_id:req.body.shop_partner_id, //ไอดีคู่ค้า
+                ...req.body
             },{new:true});
 
             if(edit){
