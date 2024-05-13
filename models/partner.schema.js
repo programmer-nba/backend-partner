@@ -24,7 +24,12 @@ const partnerSchema = new mongoose.Schema(
     //otp
     status_opt: { type: Boolean, default: false },
     status_appover: { type: String, default: "ยังกรอกข้อมูลไม่ครบ" },
-
+    status_detail:{type:[{
+      status:{type:String,default:""},
+      date:{type:Date,default:Date.now()},
+      office_id:{type:String,default:""},
+      office_name:{type:String,default:""},
+    }],default:[]},
     // นิติบุคคล
 
     /// บริษัท

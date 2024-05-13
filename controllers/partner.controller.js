@@ -419,9 +419,16 @@ module.exports.accept = async (req, res) => {
       return res.status(404).send({ status: false, message: "ไม่มีข้อมูล" });
     }
 
+    const status_detail = {
+      status: "อนุมัติแล้ว",
+      date: Date.now(),
+      office_id: req.body.office_id,
+      office_name: req.body.office_name,
+    }
+
     const edit = await Partner.findByIdAndUpdate(
       req.params.id,
-      { status_appover: "อนุมัติแล้ว" },
+      { status_appover: "อนุมัติแล้ว" ,status_detail:status_detail},
       { new: true }
     );
     return res
