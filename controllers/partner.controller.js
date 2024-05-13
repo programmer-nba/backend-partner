@@ -418,7 +418,8 @@ module.exports.accept = async (req, res) => {
     if (!partner) {
       return res.status(404).send({ status: false, message: "ไม่มีข้อมูล" });
     }
-
+    console.log(req.body.office_id)
+    console.log(req.body.office_name)
     const status_detail = {
       status: "อนุมัติแล้ว",
       date: Date.now(),
