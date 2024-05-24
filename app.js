@@ -53,6 +53,8 @@ app.use(prefix + '/onestopservice', require('./routes/tossagunshop/onestopservic
 //pos ร้านค้า
 app.use(prefix + '/posshop', require('./routes/shop/posshop'));
 
+//สินค้าลงขายใน tossagunshop
+app.use(prefix + '/producttg', require('./routes/producttg/producttg'));
 
 
 app.use((req, res, next) => {
