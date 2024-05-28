@@ -26,15 +26,16 @@ module.exports.createShop = async (req, res) => {
       if (!req.file) {
         const resq = await CreateShop(req.body);
         if (!resq.status) {
-          return res.status(403).send({ status: false, message: resq });
+          res.status(403).json({ status: false, message: resq.message });
         } else {
-          return res.status(200).send({ status: true, message: resq })
+          res.status(200).json({ status: true, message: resq.message })
         }
       }
     })
   } catch (error) {
     console.error(error);
-  } return res.status(500).send({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 //ดึงข้อมูลร้านค้า partner
@@ -142,13 +143,13 @@ module.exports.createShopEmployee = async (req, res) => {
   try {
     const resq = await CreateEmployee(req.body);
     if (!resq.status) {
-      return res.status(403).send({ status: false, message: resq.message });
+      return res.status(403).json({ status: false, message: resq.message });
     } else {
-      return res.status(200).send({ status: true, message: resq.message })
+      return res.status(200).json({ status: true, message: resq.message })
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).send({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
