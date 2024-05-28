@@ -1,64 +1,57 @@
 const multer = require("multer");
-const {
-  uploadFileCreate,
-  deleteFile,
-} = require("../../functions/uploadfilecreate");
+const fs = require("fs");
+const path = require("path");
+const { uploadFileCreate, deleteFile } = require("../../functions/uploadfilecreate");
 const axios = require("axios");
 
+const uploadFolder = path.join(__dirname, '../../assets/shop');
+fs.mkdirSync(uploadFolder, { recursive: true });
 
 const storage = multer.diskStorage({
-    filename: function (req, file, cb) {
-      cb(null, Date.now() + "-" + file.originalname);
-      //console.log(file.originalname);
-    },
-  });
+  destination: (req, file, cb) => {
+    cb(null, uploadFolder)
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+    //console.log(file.originalname);
+  },
+});
 
 //สร้างร้านค้า
 module.exports.createShop = async (req, res) => {
-    try {
-      let upload = multer({ storage: storage }).array("shop_logo", 20);
-      upload(req, res, async function (err) {
-        const reqFiles = [];
-        const result = [];
-        if (err) {
-            return res.status(500).send(err);
+  try {
+    let upload = multer({ storage: storage }).single("productTG_image");
+    upload(req, res, async function (err) {
+      console.log(req.file)
+      if (!req.file) {
+        const resq = await CreateShop(req.body);
+        if (!resq.status) {
+          return res.status(403).send({ status: false, message: resq.message });
+        } else {
+          return res.status(200).send({ status: true, message: resq.message })
         }
-         const apiResponse = await axios.post(`${process.env.API_TOSSAGUNSHOP}/partner/shop/create`,
-          req.body,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-
-        if(apiResponse?.data?.status == true){
-          return res.status(200).json({ message: "เพิ่มร้านค้าสำเร็จ", data: apiResponse.data.data, status: true });
-        }else{
-          return res.status(400).json({ message: "เพิ่มร้านค้าไม่สำเร็จ", status: false });
-        }
-      });
-    } catch (error) {
-      return res.status(500).send({ status: false, error: error.message });
-    }
+      }
+    })
+  } catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
 };
 
 //ดึงข้อมูลร้านค้า partner
 module.exports.getShop = async (req, res) => {
-  try{
-    const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/partner/shop/${req.params.partnerid}`,{
+  try {
+    const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/partner/shop/${req.params.partnerid}`, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if(apiResponse?.data?.status == true){
+    if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "ดึงข้อมูลร้านค้าสำเร็จ", data: apiResponse.data.data, status: true });
-    }else{
+    } else {
       return res.status(400).json({ message: "ดึงข้อมูลร้านค้าไม่สำเร็จ", status: false });
     }
 
-  }catch(error){
+  } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
 }
@@ -66,19 +59,19 @@ module.exports.getShop = async (req, res) => {
 
 //ดึงข้อมูลร้านค้า by id 
 module.exports.getShopById = async (req, res) => {
-  try{
-    const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/partner/shop/shop/${req.params.id}`,{
+  try {
+    const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/partner/shop/shop/${req.params.id}`, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if(apiResponse?.data?.status == true){
+    if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "ดึงข้อมูลร้านค้าสำเร็จ", data: apiResponse.data.data, status: true });
-    }else{
+    } else {
       return res.status(400).json({ message: "ดึงข้อมูลร้านค้าไม่สำเร็จ", status: false });
     }
 
-  }catch(error){
+  } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
 }
@@ -91,23 +84,22 @@ module.exports.editShop = async (req, res) => {
       const reqFiles = [];
       const result = [];
       if (err) {
-          return res.status(500).send(err);
+        return res.status(500).send(err);
       }
       let data;
-      if(req.body.shop_logo != '' && req.body.shop_logo != null)
-      {
+      if (req.body.shop_logo != '' && req.body.shop_logo != null) {
         data = {
           ...req.body,
           shop_logo: req.body.shop_logo
         }
-      }else{
+      } else {
         data = {
           ...req.body
         }
       }
-      
-       const apiResponse = await axios.put(`${process.env.API_TOSSAGUNSHOP}/partner/shop/shop/${req.params.id}`,
-       data,
+
+      const apiResponse = await axios.put(`${process.env.API_TOSSAGUNSHOP}/partner/shop/shop/${req.params.id}`,
+        data,
         {
           headers: {
             "Content-Type": "application/json",
@@ -116,9 +108,9 @@ module.exports.editShop = async (req, res) => {
       );
 
 
-      if(apiResponse?.data?.status == true){
+      if (apiResponse?.data?.status == true) {
         return res.status(200).json({ message: "แก้ไขร้านค้าสำเร็จ", data: apiResponse.data.data, status: true });
-      }else{
+      } else {
         return res.status(400).json({ message: "แก้ไขร้านค้าไม่สำเร็จ", status: false });
       }
     });
@@ -130,19 +122,19 @@ module.exports.editShop = async (req, res) => {
 
 //ลบข้อมูลร้านค้า
 module.exports.deleteShop = async (req, res) => {
-  try{
-    const apiResponse = await axios.delete(`${process.env.API_TOSSAGUNSHOP}/partner/shop/${req.params.id}`,{
+  try {
+    const apiResponse = await axios.delete(`${process.env.API_TOSSAGUNSHOP}/partner/shop/${req.params.id}`, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if(apiResponse?.data?.status == true){
+    if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "ลบข้อมูลร้านค้าสำเร็จ", data: apiResponse.data.data, status: true });
-    }else{
+    } else {
       return res.status(400).json({ message: "ลบข้อมูลร้านค้าไม่สำเร็จ", status: false });
     }
 
-  }catch(error){
+  } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
 }
@@ -150,67 +142,67 @@ module.exports.deleteShop = async (req, res) => {
 
 //เพิ่มพนักงาน
 module.exports.createShopEmployee = async (req, res) => {
-  try{
+  try {
     const apiResponse = await axios.post(`${process.env.API_TOSSAGUNSHOP}/partner/shop/employee`,
-    req.body,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+      req.body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
     console.log("ควย")
     //error.response.status
-   
-    if(apiResponse?.data?.status == true){
+
+    if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "เพิ่มพนักงานสำเร็จ", data: apiResponse.data.data, status: true });
-    }else{
+    } else {
       return res.status(400).json({ message: "เพิ่มพนักงานไม่สำเร็จ", status: false });
     }
-  }catch(error){
-   
-    if(error.response.status == 409){
+  } catch (error) {
+
+    if (error.response.status == 409) {
       return res.status(409).send({ status: false, error: "รหัสซ้ำกรุณาเปลี่ยนใหม่" });
-    }else{
+    } else {
       return res.status(500).send({ status: false, error: error.message });
     }
-    
+
   }
 }
 
 //ดึงข้อมูลพนักงาน by shopid
 module.exports.getShopEmployee = async (req, res) => {
-  try{
-    const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/partner/shop/employee/${req.params.shopid}`,{
+  try {
+    const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/partner/shop/employee/${req.params.shopid}`, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if(apiResponse?.data?.status == true){
+    if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "ดึงข้อมูลพนักงานสำเร็จ", data: apiResponse.data.data, status: true });
-    }else{
+    } else {
       return res.status(400).json({ message: "ดึงข้อมูลพนักงานไม่สำเร็จ", status: false });
     }
 
-  }catch(error){
+  } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
 }
 
 //ดึงข้อมูลพนักงาน by id (ไม่ได้ใช้)
 module.exports.getShopEmployeeById = async (req, res) => {
-  try{
-    const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/employee/${req.params.id}`,{
+  try {
+    const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/employee/${req.params.id}`, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if(apiResponse?.data?.status == true){
+    if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "ดึงข้อมูลพนักงานสำเร็จ", data: apiResponse.data.data, status: true });
-    }else{
+    } else {
       return res.status(400).json({ message: "ดึงข้อมูลพนักงานไม่สำเร็จ", status: false });
     }
 
-  }catch(error){
+  } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
 }
@@ -218,39 +210,38 @@ module.exports.getShopEmployeeById = async (req, res) => {
 
 //แก้ไขข้อมูลพนักงาน
 module.exports.editShopEmployee = async (req, res) => {
-  try{
+  try {
 
-    let data 
-    if(req.body.employee_password != '' && req.body.employee_password != null && req.body.employee_password != undefined) 
-    {
+    let data
+    if (req.body.employee_password != '' && req.body.employee_password != null && req.body.employee_password != undefined) {
       data = {
         ...req.body,
         employee_password: req.body.employee_password
       }
-    }else{
+    } else {
       data = {
         ...req.body
       }
     }
     const apiResponse = await axios.put(`${process.env.API_TOSSAGUNSHOP}/partner/shop/employee/${req.params.id}`,
-    data,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    
-    if(apiResponse?.data?.status == true){
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+    if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "แก้ไขข้อมูลพนักงานสำเร็จ", data: apiResponse.data.data, status: true });
     }
-    
-    else{
+
+    else {
       return res.status(400).json({ message: "แก้ไขข้อมูลพนักงานไม่สำเร็จ", status: false });
     }
-  }catch(error){
-    if(error.response.status == 409){
+  } catch (error) {
+    if (error.response.status == 409) {
       return res.status(409).send({ status: false, error: "รหัสซ้ำกรุณาเปลี่ยนใหม่" });
-    }else{
+    } else {
       return res.status(500).send({ status: false, error: error.message });
     }
   }
@@ -258,19 +249,40 @@ module.exports.editShopEmployee = async (req, res) => {
 
 // ลบข้อมูลพนักงาน
 module.exports.deleteShopEmployee = async (req, res) => {
-  try{
-    const apiResponse = await axios.delete(`${process.env.API_TOSSAGUNSHOP}/partner/shop/employee/${req.params.id}`,{
+  try {
+    const apiResponse = await axios.delete(`${process.env.API_TOSSAGUNSHOP}/partner/shop/employee/${req.params.id}`, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if(apiResponse?.data?.status == true){
+    if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "ลบข้อมูลพนักงานสำเร็จ", data: apiResponse.data.data, status: true });
-    }else{
+    } else {
       return res.status(400).json({ message: "ลบข้อมูลพนักงานไม่สำเร็จ", status: false });
     }
 
-  }catch(error){
+  } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
+}
+
+async function CreateShop(packageData) {
+  let data = JSON.stringify(packageData);
+  const config = {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    url: `${process.env.API_TOSSAGUNSHOP}/partner/shop/create`,
+    data: data,
+  };
+  let response;
+  await axios(config).then((res) => {
+    // console.log(res.data.message);
+    response = res.data;
+  }).catch((err) => {
+    // console.log(err.response.data);
+    response = err.response.data;
+  })
+  return response;
 }
