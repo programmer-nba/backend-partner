@@ -26,9 +26,9 @@ module.exports.createShop = async (req, res) => {
       if (!req.file) {
         const resq = await CreateShop(req.body);
         if (!resq.status) {
-          return res.status(403).send({ status: false, message: resq.message });
+          return res.status(403).send({ status: false, message: resq });
         } else {
-          return res.status(200).send({ status: true, message: resq.message })
+          return res.status(200).send({ status: true, message: resq })
         }
       }
     })
