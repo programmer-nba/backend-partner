@@ -33,8 +33,8 @@ module.exports.createShop = async (req, res) => {
       }
     })
   } catch (error) {
-    return res.status(500).send({ status: false, error: error.message });
-  }
+    console.error(error);
+  } return res.status(500).send({ message: "Internal Server Error" });
 };
 
 //ดึงข้อมูลร้านค้า partner
@@ -55,7 +55,6 @@ module.exports.getShop = async (req, res) => {
     return res.status(500).send({ status: false, error: error.message });
   }
 }
-
 
 //ดึงข้อมูลร้านค้า by id 
 module.exports.getShopById = async (req, res) => {
@@ -119,7 +118,6 @@ module.exports.editShop = async (req, res) => {
   }
 }
 
-
 //ลบข้อมูลร้านค้า
 module.exports.deleteShop = async (req, res) => {
   try {
@@ -139,33 +137,18 @@ module.exports.deleteShop = async (req, res) => {
   }
 }
 
-
 //เพิ่มพนักงาน
 module.exports.createShopEmployee = async (req, res) => {
   try {
-    const apiResponse = await axios.post(`${process.env.API_TOSSAGUNSHOP}/partner/shop/employee`,
-      req.body,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    console.log("ควย")
-    //error.response.status
-
-    if (apiResponse?.data?.status == true) {
-      return res.status(200).json({ message: "เพิ่มพนักงานสำเร็จ", data: apiResponse.data.data, status: true });
+    const resq = await CreateEmployee(req.body);
+    if (!resq.status) {
+      return res.status(403).send({ status: false, message: resq.message });
     } else {
-      return res.status(400).json({ message: "เพิ่มพนักงานไม่สำเร็จ", status: false });
+      return res.status(200).send({ status: true, message: resq.message })
     }
   } catch (error) {
-
-    if (error.response.status == 409) {
-      return res.status(409).send({ status: false, error: "รหัสซ้ำกรุณาเปลี่ยนใหม่" });
-    } else {
-      return res.status(500).send({ status: false, error: error.message });
-    }
-
+    console.error(error);
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 }
 
@@ -206,7 +189,6 @@ module.exports.getShopEmployeeById = async (req, res) => {
     return res.status(500).send({ status: false, error: error.message });
   }
 }
-
 
 //แก้ไขข้อมูลพนักงาน
 module.exports.editShopEmployee = async (req, res) => {
@@ -286,3 +268,24 @@ async function CreateShop(packageData) {
   })
   return response;
 }
+
+async function CreateEmployee(packageData) {
+  let data = JSON.stringify(packageData);
+  const config = {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    url: `${process.env.API_TOSSAGUNSHOP}/partner/shop/employee`,
+    data: data,
+  };
+  let response;
+  await axios(config).then((res) => {
+    // console.log(res.data.message);
+    response = res.data;
+  }).catch((err) => {
+    // console.log(err.response.data);
+    response = err.response.data;
+  })
+  return response;
+};
