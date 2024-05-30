@@ -12,10 +12,13 @@ module.exports.add = async (req, res) => {
         //ทำการเพิ่มข้อมูลพนักงานร้าน
         const data = new Employeeshop({
             employee_shop_id: req.body.employee_shop_id, //ไอดีร้านค้า
-            employee_name: req.body.employee_name, //ชื่อพนักงาน
+            employee_prefix: req.body.employee_prefix, //คำนำหน้าชื่อ
+            employee_firstname: req.body.employee_firstname, //ชื่อพนักงาน
+            employee_lastname: req.body.employee_lastname, //นามสกุลพนักงาน
             employee_username: req.body.employee_username, //ชื่อผู้ใช้พนักงาน
             employee_password: bcrypt.hashSync(req.body.employee_password, 10), //รหัสผ่านพนักงาน
             employee_phone: req.body.employee_phone, //เบอร์โทรพนักงาน
+            employee_email: req.body.employee_email, // อีเมล์
             employee_position: req.body.employee_position, //ตำแหน่งพนักงาน
         });
         const add = await data.save();
@@ -88,10 +91,13 @@ module.exports.edit = async (req, res) => {
         }
         const data = {
             employee_shop_id: req.body.employee_shop_id, //ไอดีร้านค้า
-            employee_name: req.body.employee_name, //ชื่อพนักงาน
+            employee_prefix: req.body.employee_prefix, //คำนำหน้าชื่อ
+            employee_firstname: req.body.employee_firstname, //ชื่อพนักงาน
+            employee_lastname: req.body.employee_lastname, //นามสกุลพนักงาน
             employee_username: req.body.employee_username, //ชื่อผู้ใช้พนักงาน
-            employee_password: bcrypt.hashSync(req.body.employee_password, 10), //รหัสผ่านพนักงาน
+            employee_password:  req.body.employee_password != '' && req.body.employee_password != undefined ? bcrypt.hashSync(req.body.employee_password, 10):check.employee_password, //รหัสผ่านพนักงาน
             employee_phone: req.body.employee_phone, //เบอร์โทรพนักงาน
+            employee_email: req.body.employee_email, // อีเมล์
             employee_position: req.body.employee_position, //ตำแหน่งพนักงาน
         };
         const edit = await Employeeshop.findByIdAndUpdate(req.params.id, data, {useFindAndModify: false});

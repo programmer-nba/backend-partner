@@ -8,7 +8,7 @@ const ObjectId = mongoose.Types.ObjectId;
 // สร้างออเดอร์ pos 
 exports.create = async (req, res) => {
     try {
-        const posorder = new Posorder({...req.body,pos_ref:await runreferralcode(),
+        const posorder = new Posorder({...req.body,pos_date:Date.now(),pos_ref:await runreferralcode(),
             pos_status:[{status:"รอออเดอร์",date:Date.now()}]});
         const add =  await posorder.save();
         if(add){
@@ -208,8 +208,11 @@ exports.report = async (req, res) => {
                     total: 0,
                     count: 0,
                     platform: 0,
-                    notplatform: 0
+                    notplatform: 0,
+                    gettoplatform:0
                 }]
+            }else{
+                reportorder[0].gettoplatform = reportorder[0].total *(25/100)
             }
 
             //สินค้าขายดี ประจำวัน
@@ -317,6 +320,8 @@ exports.report = async (req, res) => {
                     platform: 0,
                     notplatform: 0
                 }]
+            }else{
+                reportorder[0].gettoplatform = reportorder[0].total *(25/100)
             }
 
             //สินค้าขายดี ประจำเดือน
@@ -426,8 +431,9 @@ exports.report = async (req, res) => {
                     platform: 0,
                     notplatform: 0
                 }]
+            }else{
+                reportorder[0].gettoplatform = reportorder[0].total *(25/100)
             }
-
             //สินค้าขายดี ประจำปี
             let reportproduct = await Posorder.aggregate([
                 {
