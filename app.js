@@ -47,6 +47,9 @@ app.use(prefix + '/requestshop', require('./routes/shop/requestshop'));
 //ข้อมูลสินค้าร้านค้า
 app.use(prefix + '/productshop', require('./routes/shop/productshop'));
 
+//ข้อมูลพนักงานในร้านค้า
+app.use(prefix + '/employeeshop', require('./routes/shop/employeeshop'));
+
 //ข้อมูล one stop service
 app.use(prefix + '/onestopservice', require('./routes/tossagunshop/onestopservice'));
 
@@ -55,6 +58,7 @@ app.use(prefix + '/posshop', require('./routes/shop/posshop'));
 
 //สินค้าลงขายใน tossagunshop
 app.use(prefix + '/producttg', require('./routes/producttg/producttg'));
+
 
 
 app.use((req, res, next) => {
