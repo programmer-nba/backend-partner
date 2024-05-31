@@ -3,10 +3,12 @@ var router = express.Router();
 const Auth = require('../authentication/Auth')
 const Contract = require('../controllers/contract.controller')
 
-// ดึงสัญญาทั้งหมด
+// ดึงสัญญาตาม partner_id
+router.get('/getcontractbypartnerid/:id', Auth.partner, Contract.getcontractbypartnerid)
+
 
 //ดึงสัญญาตามประเภทมาแสดง
-
+router.get('/getcontractbycode/:id', Auth.partner, Contract.getcontractbycode)
 //ยอมรับสัญญา เข้าใช้งานระบบ partner
 router.put('/acceptcontractpartner/:id', Auth.partner, Contract.acceptcontractpartner)
 

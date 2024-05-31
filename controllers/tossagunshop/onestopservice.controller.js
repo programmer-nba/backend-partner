@@ -46,6 +46,7 @@ module.exports.getShop = async (req, res) => {
         "Content-Type": "application/json",
       },
     });
+    
     if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "ดึงข้อมูลร้านค้าสำเร็จ", data: apiResponse.data.data, status: true });
     } else {
