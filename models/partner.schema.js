@@ -65,6 +65,12 @@ const partnerSchema = new mongoose.Schema(
       default: null,
     },
     partner_timestamp: { type: Array, required: false, default: [] },
+    //สัญญา 
+    contract_partner:{type:Boolean,default:false}, //ยืนยันสัญญา ล็อคอินเข้าระบบครั้งแรก
+    contract_emakert:{type:Boolean,default:false}, //ยืนยันสัญญา เข้าใช้งาน emarket
+    contract_pospartner:{type:Boolean,default:false}, //ยืนยันสัญญา เข้าใช้งาน pospartner
+    contract_onestopservice:{type:Boolean,default:false}, //ยืนยันสัญญา เข้าใช้งาน onestopservice
+    contract_onestopshop:{type:Boolean,default:false}, //ยืนยันสัญญา เข้าใช้งาน onestopshop
   },
   { timestamps: true }
 );

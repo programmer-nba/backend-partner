@@ -59,6 +59,10 @@ app.use(prefix + '/posshop', require('./routes/shop/posshop'));
 //สินค้าลงขายใน tossagunshop
 app.use(prefix + '/producttg', require('./routes/producttg/producttg'));
 
+// สัญญา
+app.use(prefix + '/contract', require('./routes/contract'));
+
+
 
 
 app.use((req, res, next) => {

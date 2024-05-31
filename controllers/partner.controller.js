@@ -30,30 +30,6 @@ module.exports.register = async (req, res) => {
     });
     const add = await data.save();
     // ส่ง request ไปยัง API อื่นๆ โดยให้ url, method, headers และ data ตามที่ต้องการ
-    
-    // const apiResponse = await axios.post(
-    //   `${process.env.API_OFFICE}/partners/register`,
-    //   {
-    //     // ข้อมูลที่ต้องการส่งไปยัง API อื่นๆ
-    //     _id: add._id,
-    //     username: add.username,
-    //     password: add.password,
-    //     antecedent: add.antecedent,
-    //     partner_name: add.partner_name,
-    //     partner_phone: add.partner_phone,
-    //     partner_email: add.partner_email,
-    //     partner_iden_number: add.partner_iden_number,
-    //     partner_address: add.partner_address,
-    //     partner_province: add.partner_province,
-    //     partner_amphure: add.partner_amphure,
-    //     partner_district: add.partner_district,
-    //     partner_postcode: add.partner_postcode,
-    //   },
-    //   {
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //   });
     if(add){
       return res.status(200).send({
         status: true,
@@ -66,8 +42,6 @@ module.exports.register = async (req, res) => {
         message: "ไม่สามารถสร้างไอดี Partner ได้",
       });
     }
-    
-    
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
@@ -1164,6 +1138,8 @@ module.exports.sendtypecontract = async (req, res) => {
     return res.status(500).send({ status: false, error: error.message });
   }
 }
+
+
 
 
 
