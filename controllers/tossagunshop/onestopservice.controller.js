@@ -41,12 +41,13 @@ module.exports.createShop = async (req, res) => {
 //ดึงข้อมูลร้านค้า partner
 module.exports.getShop = async (req, res) => {
   try {
+    
     const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/partner/shop/${req.params.partnerid}`, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    
+   
     if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "ดึงข้อมูลร้านค้าสำเร็จ", data: apiResponse.data.data, status: true });
     } else {
@@ -61,15 +62,17 @@ module.exports.getShop = async (req, res) => {
 //ดึงข้อมูลร้านค้า by id 
 module.exports.getShopById = async (req, res) => {
   try {
+    console.log(`${process.env.API_TOSSAGUNSHOP}/partner/shop/shop/${req.params.id}`)
     const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/partner/shop/shop/${req.params.id}`, {
       headers: {
         "Content-Type": "application/json",
       },
-    });
+    }).catch((error)=>{return error});
+    console.log("test")
     if (apiResponse?.data?.status == true) {
       return res.status(200).json({ message: "ดึงข้อมูลร้านค้าสำเร็จ", data: apiResponse.data.data, status: true });
     } else {
-      return res.status(400).json({ message: "ดึงข้อมูลร้านค้าไม่สำเร็จ", status: false });
+      return res.status(200).json({ message: "ดึงข้อมูลร้านค้าสำเร็จ", status: true ,data:[]});
     }
 
   } catch (error) {
