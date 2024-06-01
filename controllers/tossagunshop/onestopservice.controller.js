@@ -41,7 +41,7 @@ module.exports.createShop = async (req, res) => {
 //ดึงข้อมูลร้านค้า partner
 module.exports.getShop = async (req, res) => {
   try {
-   
+    console.log(`${process.env.API_TOSSAGUNSHOP}/partner/shop/${req.params.partnerid}`)
     const apiResponse = await axios.get(`${process.env.API_TOSSAGUNSHOP}/partner/shop/${req.params.partnerid}`, {
       headers: {
         "Content-Type": "application/json",
