@@ -7,13 +7,36 @@ const {
 } = require("../../functions/uploadfilecreate");
 
 
+const fs = require('fs');
+const path = require('path');
+
 const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'assets/image/pospartner');
+      },
     filename: function (req, file, cb) {
       cb(null, Date.now() + "-" + file.originalname);
       //console.log(file.originalname);
     },
   });
 
+const deleteimage = (filePath) => {
+    console.log(__dirname, '..', filePath);
+    const fullPath = path.join(__dirname, '..', filePath);
+    fs.access(fullPath, fs.constants.F_OK, (err) => {
+      if (!err) {
+        fs.unlink(fullPath, (unlinkErr) => {
+          if (unlinkErr) {
+            console.error(`Failed to delete file: ${filePath}`, unlinkErr);
+          } else {
+            console.log(`Successfully deleted file: ${filePath}`);
+          }
+        });
+      } else {
+        console.log(`File not found: ${filePath}`);
+      }
+    });
+};
 
 //เพิ่มสินค้า
 module.exports.add = async (req, res) => {
@@ -119,24 +142,29 @@ module.exports.addimgproduct = async (req, res) => {
         if (err) {
             return res.status(500).send(err);
         }
-        const product = await Productshop.findById(req.params.id);
-        if(!product){
-            return res.status(400).json({message:"ไม่พบข้อมูลสินค้า",status:false});
-        }else{
-            product.productshop_image != ''? deleteFile(product.productshop_image) : null
-        }
-
         let image = '' // ตั้งตัวแปรรูป
         //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
         if (req.files) {
-            const url = req.protocol + "://" + req.get("host");
-            for (var i = 0; i < req.files.length; i++) {
-                const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-                result.push(src);
-                //   reqFiles.push(url + "/public/" + req.files[i].filename);
+            const url = '/assets/image/emarket/';
+            const reqFiles = [];
+      
+            req.files.forEach(file => {
+              reqFiles.push(url + file.filename);
+            });
+      
+            image = reqFiles[0];
+      
+            const product = await Productshop.findById(req.params.id);
+            if (product.productshop_image!= '')
+            {
+                deleteimage(product.productshop_image);
             }
-            image = reqFiles[0]
-        }
+          } else {
+            return res.json({
+              message: "not found any files",
+              status: false
+            })
+          }
         const data = { productshop_image: image }
         const edit = await Productshop.findByIdAndUpdate(req.params.id, data, { new: true })
         return res.status(200).send({ status: true, message: "เพิ่มรูปภาพเรียบร้อย", data: edit });

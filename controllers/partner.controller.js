@@ -430,110 +430,121 @@ module.exports.delete = async (req, res) => {
 };
 
 const multer = require("multer");
-const {
-  uploadFileCreate,
-  deleteFile,
-} = require("../functions/uploadfilecreate");
+const fs = require('fs');
+const path = require('path');
+const deleteimage = (filePath) => {
+  console.log(__dirname, '..', filePath);
+  const fullPath = path.join(__dirname, '..', filePath);
+  fs.access(fullPath, fs.constants.F_OK, (err) => {
+    if (!err) {
+      fs.unlink(fullPath, (unlinkErr) => {
+        if (unlinkErr) {
+          console.error(`Failed to delete file: ${filePath}`, unlinkErr);
+        } else {
+          console.log(`Successfully deleted file: ${filePath}`);
+        }
+      });
+    } else {
+      console.log(`File not found: ${filePath}`);
+    }
+  });
+};
+// const {
+//   uploadFileCreate,
+//   deleteFile,
+// } = require("../functions/uploadfilecreate");
 
-const storage = multer.diskStorage({
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-    //console.log(file.originalname);
+const storageidcard = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'assets/image/idcard');
   },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
 });
 // บัตรประจำตัวประชาชน
 module.exports.iden = async (req, res) => {
   try {
-    let upload = multer({ storage: storage }).array("image", 20);
+    let upload = multer({ storage: storageidcard }).array("image", 20);
     upload(req, res, async function (err) {
-      const reqFiles = [];
-      const result = [];
       if (err) {
         return res.status(500).send(err);
       }
-      let image = ""; // ตั้งตัวแปรรูป
-      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+      let image = ''; // ตัวแปรเก็บเส้นทางของรูปภาพ
       if (req.files) {
-        const url = req.protocol + "://" + req.get("host");
-        for (var i = 0; i < req.files.length; i++) {
-          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-          result.push(src);
-
-          //   reqFiles.push(url + "/public/" + req.files[i].filename);
-        }
-
-        //ไฟล์รูป
+        const url = '/assets/image/idcard/';
+        const reqFiles = [];
+        req.files.forEach(file => {
+          reqFiles.push(url + file.filename);
+        });
         image = reqFiles[0];
         const partner = await Partner.findOne({ _id: req.params.id });
-        if(partner.partner_iden != ""){
-          const deletefile = await deleteFile(partner.partner_iden);
+        if (partner.partner_iden != '') {
+          deleteimage(partner.partner_iden);
         }
       }
-
-      
       const data = {
         partner_iden: image,
       };
-      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
-        new: true,
-      });
-      ///
-      // const apiResponse = await axios
-      //   .put(
-      //     `${process.env.API_OFFICE}/partners/upIden/${req.params.id}`,
-      //     { partner_iden: image },
-      //     {
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //     }
-      //   );
-      ////
-      if(edit){
+      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {new: true,});
+      if (edit) {
         return res.status(200).send({
           status: true,
-          message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+          message: 'คุณได้รูปภาพเรียบร้อยแล้ว',
           data: edit,
         });
-      }else{
-        return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+      } else {
+        return res.status(200).send({ status: false, message: 'ไม่สามารถแก้ไขข้อมูลได้' });
       }
-      
     });
-  } catch (error) {
+  }
+  catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
 };
+
+
+
+// ตั้งค่า Multer ของ เอกสารที่เกี่ยวข้องกับบริษัท
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'assets/image/document');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+
 
 //ไฟล์เอกสาร
 module.exports.filecompany = async (req, res) => {
   try {
     let upload = multer({ storage: storage }).array("image", 20);
     upload(req, res, async function (err) {
-      const reqFiles = [];
-      const result = [];
       if (err) {
         return res.status(500).send(err);
       }
-      let image = ""; // ตั้งตัวแปรรูป
-      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+
+      let image = ''; // ตัวแปรเก็บเส้นทางของรูปภาพ
+
       if (req.files) {
-        const url = req.protocol + "://" + req.get("host");
-        for (var i = 0; i < req.files.length; i++) {
-          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-          result.push(src);
+        const url = '/assets/image/document/';
+        const reqFiles = [];
 
-          //   reqFiles.push(url + "/public/" + req.files[i].filename);
-        }
+        req.files.forEach(file => {
+          reqFiles.push(url + file.filename);
+        });
 
-        //ไฟล์รูป
         image = reqFiles[0];
+
         const partner = await Partner.findOne({ _id: req.params.id });
-        if(partner.filecompany != ""){
-          const deletefile = await deleteFile(partner.filecompany);
+        if (partner.filecompany !='') {
+          
+          deleteimage(partner.filecompany)
         }
       }
-      
+
       const data = {
         filecompany: image,
       };
@@ -541,28 +552,16 @@ module.exports.filecompany = async (req, res) => {
       const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
-      // const apiResponse = await axios
-      //   .put(
-      //     `${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`,
-      //     { filecompany: image },
-      //     {
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //     }
-      //   );
 
-        if(edit){
-          return res.status(200).send({
-            status: true,
-            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-            data: edit,
-           
-          });
-        }else{
-          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
-        }
-      
+      if (edit) {
+        return res.status(200).send({
+          status: true,
+          message: 'คุณได้รูปภาพเรียบร้อยแล้ว',
+          data: edit,
+        });
+      } else {
+        return res.status(200).send({ status: false, message: 'ไม่สามารถแก้ไขข้อมูลได้' });
+      }
     });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
@@ -570,63 +569,49 @@ module.exports.filecompany = async (req, res) => {
 };
 
 module.exports.filecompany2 = async (req, res) => {
-  try {
-    let upload = multer({ storage: storage }).array("image", 20);
-    upload(req, res, async function (err) {
+ try{
+  let upload = multer({ storage: storage }).array("image", 20);
+  upload(req, res, async function (err) {
+    if (err) {
+      return res.status(500).send(err);
+    }
+
+    let image = ''; // ตัวแปรเก็บเส้นทางของรูปภาพ
+
+    if (req.files) {
+      const url = '/assets/image/document/';
       const reqFiles = [];
-      const result = [];
-      if (err) {
-        return res.status(500).send(err);
-      }
-      let image = ""; // ตั้งตัวแปรรูป
-      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
-      if (req.files) {
-        const url = req.protocol + "://" + req.get("host");
-        for (var i = 0; i < req.files.length; i++) {
-          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-          result.push(src);
 
-          //   reqFiles.push(url + "/public/" + req.files[i].filename);
-        }
-
-        //ไฟล์รูป
-        image = reqFiles[0];
-        const partner = await Partner.findOne({ _id: req.params.id });
-        if(partner.filecompany2 != ""){
-          const deletefile = await deleteFile(partner.filecompany2);
-        }
-      }
-      
-      const data = {
-        filecompany2: image,
-      };
-
-      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
-        new: true,
+      req.files.forEach(file => {
+        reqFiles.push(url + file.filename);
       });
-     
-      // const apiResponse = await axios
-      //   .put(
-      //     `${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`,
-      //     { filecompany: image },
-      //     {
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //     }
-      //   );
 
-        if(edit){
-          return res.status(200).send({
-            status: true,
-            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-            data: edit,
-          });
-        }else{
-          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
-        }
-      
+      image = reqFiles[0];
+
+      const partner = await Partner.findOne({ _id: req.params.id });
+      if (partner.filecompany2 !='') {
+        deleteimage(partner.filecompany2)
+      }
+    }
+
+    const data = {
+      filecompany2: image,
+    };
+
+    const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
+      new: true,
     });
+
+    if (edit) {
+      return res.status(200).send({
+        status: true,
+        message: 'คุณได้รูปภาพเรียบร้อยแล้ว',
+        data: edit,
+      });
+    } else {
+      return res.status(200).send({ status: false, message: 'ไม่สามารถแก้ไขข้อมูลได้' });
+    }
+  });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
@@ -634,62 +619,50 @@ module.exports.filecompany2 = async (req, res) => {
 
 module.exports.filecompany3 = async (req, res) => {
   try {
-    let upload = multer({ storage: storage }).array("image", 20);
-    upload(req, res, async function (err) {
-      const reqFiles = [];
-      const result = [];
-      if (err) {
-        return res.status(500).send(err);
-      }
-      let image = ""; // ตั้งตัวแปรรูป
-      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
-      if (req.files) {
-        const url = req.protocol + "://" + req.get("host");
-        for (var i = 0; i < req.files.length; i++) {
-          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-          result.push(src);
-
-          //   reqFiles.push(url + "/public/" + req.files[i].filename);
+  
+      let upload = multer({ storage: storage }).array("image", 20);
+      upload(req, res, async function (err) {
+        if (err) {
+          return res.status(500).send(err);
         }
-
-        //ไฟล์รูป
-        image = reqFiles[0];
-        const partner = await Partner.findOne({ _id: req.params.id });
-        if(partner.filecompany3 != ""){ 
-          const deletefile = await deleteFile(partner.filecompany3);
+    
+        let image = ''; // ตัวแปรเก็บเส้นทางของรูปภาพ
+    
+        if (req.files) {
+          const url = '/assets/image/document/';
+          const reqFiles = [];
+    
+          req.files.forEach(file => {
+            reqFiles.push(url + file.filename);
+          });
+    
+          image = reqFiles[0];
+    
+          const partner = await Partner.findOne({ _id: req.params.id });
+          if (partner.filecompany3 != '') {
+            deleteimage(partner.filecompany3)
+          }
         }
-      }
-      
-      const data = {
-        filecompany3: image,
-      };
-
-      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
-        new: true,
-      });
-      // const apiResponse = await axios
-      //   .put(
-      //     `${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`,
-      //     { filecompany: image },
-      //     {
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //     }
-      //   );
-
-        if(edit){
+    
+        const data = {
+          filecompany3: image,
+        };
+        console.log(data);
+    
+        const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
+          new: true,
+        });
+    
+        if (edit) {
           return res.status(200).send({
             status: true,
-            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+            message: 'คุณได้รูปภาพเรียบร้อยแล้ว',
             data: edit,
-          
           });
-        }else{
-          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+        } else {
+          return res.status(200).send({ status: false, message: 'ไม่สามารถแก้ไขข้อมูลได้' });
         }
-      
-    });
+      });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
@@ -697,73 +670,69 @@ module.exports.filecompany3 = async (req, res) => {
 
 module.exports.filecompany4 = async (req, res) => {
   try {
+  
     let upload = multer({ storage: storage }).array("image", 20);
     upload(req, res, async function (err) {
-      const reqFiles = [];
-      const result = [];
       if (err) {
         return res.status(500).send(err);
       }
-      let image = ""; // ตั้งตัวแปรรูป
-      //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+  
+      let image = ''; // ตัวแปรเก็บเส้นทางของรูปภาพ
+  
       if (req.files) {
-        const url = req.protocol + "://" + req.get("host");
-        for (var i = 0; i < req.files.length; i++) {
-          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-          result.push(src);
-
-          //   reqFiles.push(url + "/public/" + req.files[i].filename);
-        }
-
-        //ไฟล์รูป
+        const url = '/assets/image/document/';
+        const reqFiles = [];
+  
+        req.files.forEach(file => {
+          reqFiles.push(url + file.filename);
+        });
+  
         image = reqFiles[0];
+  
         const partner = await Partner.findOne({ _id: req.params.id });
-        if(partner.filecompany4 != ""){
-          const deletefile = await deleteFile(partner.filecompany4);
+        if (partner.filecompany4 !='') {
+          deleteimage(partner.filecompany4)
         }
       }
-      
-
+  
       const data = {
         filecompany4: image,
       };
-
+  
       const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
-      // const apiResponse = await axios
-      //   .put(
-      //     `${process.env.API_OFFICE}/partners/upCompany/${req.params.id}`,
-      //     { filecompany: image },
-      //     {
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //     }
-      //   );
-
-        if(edit){
-          return res.status(200).send({
-            status: true,
-            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-            data: edit,
-            
-          });
-        }else{
-          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
-        }
-      
+  
+      if (edit) {
+        return res.status(200).send({
+          status: true,
+          message: 'คุณได้รูปภาพเรียบร้อยแล้ว',
+          data: edit,
+        });
+      } else {
+        return res.status(200).send({ status: false, message: 'ไม่สามารถแก้ไขข้อมูลได้' });
+      }
     });
-  } catch (error) {
-    return res.status(500).send({ status: false, error: error.message });
-  }
+} catch (error) {
+  return res.status(500).send({ status: false, error: error.message });
+}
 };
 
+
+
+const storagelogo = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'assets/image/logo');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
 
 // เพิ่มรูปภาพโลโก้
 module.exports.logo = async (req, res) => {
   try {
-    let upload = multer({ storage: storage }).array("image", 20);
+    let upload = multer({ storage: storagelogo }).array("image", 20);
     upload(req, res, async function (err) {
       const reqFiles = [];
       const result = [];
@@ -773,19 +742,18 @@ module.exports.logo = async (req, res) => {
       let image = ""; // ตั้งตัวแปรรูป
       //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
       if (req.files) {
-        const url = req.protocol + "://" + req.get("host");
-        for (var i = 0; i < req.files.length; i++) {
-          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-          result.push(src);
-
-          //   reqFiles.push(url + "/public/" + req.files[i].filename);
-        }
-
-        //ไฟล์รูป
+        const url = '/assets/image/logo/';
+        const reqFiles = [];
+  
+        req.files.forEach(file => {
+          reqFiles.push(url + file.filename);
+        });
+  
         image = reqFiles[0];
+  
         const partner = await Partner.findOne({ _id: req.params.id });
-        if(partner.logo != ""){
-          const deletefile = await deleteFile(partner.logo);
+        if (partner.logo !='') {
+          deleteimage(partner.logo)
         }
       } else {
         return res.json({
@@ -800,16 +768,7 @@ module.exports.logo = async (req, res) => {
       const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
-      // const apiResponse = await axios
-      //   .put(
-      //     `${process.env.API_OFFICE}/partners/upLogo/${req.params.id}`,
-      //     { logo: image },
-      //     {
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //     }
-      //   );
+
 
         if(edit){
           return res.status(200).send({
@@ -828,11 +787,21 @@ module.exports.logo = async (req, res) => {
   }
 };
 
+const storagescompanyseal = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'assets/image/companyseal');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+
 
 //เพิ่มตราประทับบริษัท
-module.exports. companyseal = async (req, res) => {
+module.exports.companyseal = async (req, res) => {
   try{
-    let upload = multer({ storage: storage }).array("image", 20);
+    let upload = multer({ storage: storagescompanyseal }).array("image", 20);
     upload(req, res, async function (err) {
       const reqFiles = [];
       const result = [];
@@ -842,20 +811,24 @@ module.exports. companyseal = async (req, res) => {
       let image = ""; // ตั้งตัวแปรรูป
       //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
       if (req.files) {
-        const url = req.protocol + "://" + req.get("host");
-        for (var i = 0; i < req.files.length; i++) {
-          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-          result.push(src);
-
-          //   reqFiles.push(url + "/public/" + req.files[i].filename);
-        }
-
-        //ไฟล์รูป
+        const url = '/assets/image/companyseal/';
+        const reqFiles = [];
+  
+        req.files.forEach(file => {
+          reqFiles.push(url + file.filename);
+        });
+  
         image = reqFiles[0];
+  
         const partner = await Partner.findOne({ _id: req.params.id });
-        if(partner.companyseal != ""){
-          const deletefile = await deleteFile(partner.companyseal);
+        if (partner.companyseal !='') {
+          deleteimage(partner.companyseal)
         }
+      } else {
+        return res.json({
+          message: "not found any files",
+          status: false
+        })
       }
 
       const data = {
@@ -882,11 +855,20 @@ module.exports. companyseal = async (req, res) => {
   }
 };
 
+const storagesignature = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'assets/image/signature');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+})
+
 
 // เพิ่มรูปภาพลายเซ็นต์
 module.exports.addsignature = async (req, res) => {
   try {
-    let upload = multer({ storage: storage }).array("image", 20);
+    let upload = multer({ storage: storagesignature  }).array("image", 20);
     upload(req, res, async function (err) {
       const reqFiles = [];
       const result = [];
@@ -896,21 +878,21 @@ module.exports.addsignature = async (req, res) => {
       let image = ""; // ตั้งตัวแปรรูป
       //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
       if (req.files) {
-        const url = req.protocol + "://" + req.get("host");
-        for (var i = 0; i < req.files.length; i++) {
-          const src = await uploadFileCreate(req.files, res, { i, reqFiles });
-          result.push(src);
-
-          //   reqFiles.push(url + "/public/" + req.files[i].filename);
-        }
-
-        //ไฟล์รูป
+        const url = '/assets/image/signature/';
+        const reqFiles = [];
+  
+        req.files.forEach(file => {
+          reqFiles.push(url + file.filename);
+        });
+  
         image = reqFiles[0];
-        const partner = await Partner.findById(req.params.id);
-        if(partner.signature !='')
-        {
-          const deletefile = await deleteFile(partner.signature);
-        }
+  
+     
+      } else {
+        return res.json({
+          message: "not found any files",
+          status: false
+        })
       }
 
       const partner = await Partner.findById(req.params.id);
@@ -930,16 +912,7 @@ module.exports.addsignature = async (req, res) => {
         { signature: partner.signature },
         { new: true }
       );
-      // const apiResponse = await axios
-      //   .put(
-      //     `${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`,
-      //     { signature: partner.signature },
-      //     {
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //     }
-      //   );
+    
         if(edit){
           return res.status(200).send({
             status: true,
@@ -1044,25 +1017,24 @@ module.exports.deletesignature = async (req, res) => {
       res.status(400).send({ status: false, message: "ไม่มีข้อมูล" });
     }
 
+  partner.signature.forEach((item) => {
+    if (item._id == signatureid) {
+      if (item.sign != '') {
+        deleteimage(item.sign)
+      }
+    }
+  }); 
     partner.signature = partner.signature.filter(
       (item) => item._id != signatureid
     );
+    //ลบรูปภาพลายเซ็น
 
     const edit = await Partner.findByIdAndUpdate(
       req.params.id,
       { signature: partner.signature },
       { new: true }
     );
-    // const apiResponse = await axios
-    //   .put(
-    //     `${process.env.API_OFFICE}/partners/addSignature/${req.params.id}`,
-    //     { signature: partner.signature },
-    //     {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     }
-    //   );
+  
       if(edit){
         return res.status(200).send({
           status: true,

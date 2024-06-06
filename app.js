@@ -25,7 +25,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cor())
 //router
+
+
 const prefix = '/v1/Backend-Partner'
+
+//ที่เก็บรูปภาพ
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
 app.use(prefix + '/', require('./routes/index'));
 //ข้อมูล admin
 app.use(prefix + '/partner', require('./routes/partner'));
