@@ -30,7 +30,7 @@ app.use(cor())
 const prefix = '/v1/Backend-Partner'
 
 //ที่เก็บรูปภาพ
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use(prefix+'/assets', express.static(path.join(__dirname, 'assets')));
 
 app.use(prefix + '/', require('./routes/index'));
 //ข้อมูล admin

@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
   });
 
 const deleteimage = (filePath) => {
-    console.log(__dirname, '..', filePath);
+   
     const fullPath = path.join(__dirname, '..', filePath);
     fs.access(fullPath, fs.constants.F_OK, (err) => {
       if (!err) {
