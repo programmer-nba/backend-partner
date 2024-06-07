@@ -454,14 +454,20 @@ const deleteimage = (filePath) => {
 //   deleteFile,
 // } = require("../functions/uploadfilecreate");
 
+
+
+const uploadidcard = path.join(__dirname, '../../assets/image/idcard');
+fs.mkdirSync(uploadidcard, { recursive: true });
 const storageidcard = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'assets/image/idcard');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
+    destination: function (req, file, cb) {
+        cb(null, uploadidcard);
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname);
+        console.log(file.originalname);
+    },
 });
+
 // บัตรประจำตัวประชาชน
 module.exports.iden = async (req, res) => {
   try {
@@ -506,15 +512,17 @@ module.exports.iden = async (req, res) => {
 
 
 // ตั้งค่า Multer ของ เอกสารที่เกี่ยวข้องกับบริษัท
+const uploadcompany = path.join(__dirname, '../../assets/image/document');
+fs.mkdirSync(uploadcompany , { recursive: true });
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'assets/image/document');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
+    destination: function (req, file, cb) {
+        cb(null, uploadcompany );
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname);
+        console.log(file.originalname);
+    },
 });
-
 
 
 //ไฟล์เอกสาร
@@ -720,13 +728,18 @@ module.exports.filecompany4 = async (req, res) => {
 
 
 
+
+// โล้โก้
+const uploadlogo = path.join(__dirname, '../../assets/image/logo');
+fs.mkdirSync(uploadcompany , { recursive: true });
 const storagelogo = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'assets/image/logo');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
+    destination: function (req, file, cb) {
+        cb(null, uploadcompany );
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname);
+        console.log(file.originalname);
+    },
 });
 
 // เพิ่มรูปภาพโลโก้
@@ -787,15 +800,20 @@ module.exports.logo = async (req, res) => {
   }
 };
 
-const storagescompanyseal = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'assets/image/companyseal');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
 
+
+
+const uploadcompanyseal = path.join(__dirname, '../../assets/image/companyseal');
+fs.mkdirSync(uploadcompanyseal , { recursive: true });
+const storagescompanyseal = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadcompanyseal );
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname);
+        console.log(file.originalname);
+    },
+});
 
 
 //เพิ่มตราประทับบริษัท
@@ -855,15 +873,19 @@ module.exports.companyseal = async (req, res) => {
   }
 };
 
-const storagesignature = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'assets/image/signature');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-})
 
+
+const uploadsignature = path.join(__dirname, '../../assets/image/signature');
+fs.mkdirSync(uploadsignature, { recursive: true });
+const storagesignature = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadsignature );
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname);
+        console.log(file.originalname);
+    },
+});
 
 // เพิ่มรูปภาพลายเซ็นต์
 module.exports.addsignature = async (req, res) => {

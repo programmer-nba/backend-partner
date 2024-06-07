@@ -10,15 +10,18 @@ const {
 const fs = require('fs');
 const path = require('path');
 
+const uploadFolder = path.join(__dirname, '../../assets/image/pospartner');
+fs.mkdirSync(uploadFolder, { recursive: true });
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'assets/image/pospartner');
-      },
-    filename: function (req, file, cb) {
-      cb(null, Date.now() + "-" + file.originalname);
-      //console.log(file.originalname);
+        cb(null, uploadFolder);
     },
-  });
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname);
+        console.log(file.originalname);
+    },
+});
 
 const deleteimage = (filePath) => {
    
