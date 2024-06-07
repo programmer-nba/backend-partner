@@ -148,7 +148,7 @@ module.exports.addimgproduct = async (req, res) => {
         let image = '' // ตั้งตัวแปรรูป
         //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
         if (req.files) {
-            const url = '/assets/image/emarket/';
+            const url = '/assets/image/pospartner/';
             const reqFiles = [];
       
             req.files.forEach(file => {
