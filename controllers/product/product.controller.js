@@ -8,10 +8,10 @@ const {
 
 const fs = require('fs');
 const path = require('path');
-
+const uploadFolder = path.join(__dirname, '../../assets/image/emarket');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'assets/image/emarket');
+        cb(null, uploadFolder);
       },
     filename: function (req, file, cb) {
       cb(null, Date.now() + "-" + file.originalname);
@@ -20,8 +20,7 @@ const storage = multer.diskStorage({
   });
 
 const deleteimage = (filePath) => {
-    console.log(__dirname, '..', filePath);
-    const fullPath = path.join(__dirname, '..', filePath);
+    const fullPath = path.join(__dirname, '../../', filePath);
     fs.access(fullPath, fs.constants.F_OK, (err) => {
       if (!err) {
         fs.unlink(fullPath, (unlinkErr) => {
