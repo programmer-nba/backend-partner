@@ -280,9 +280,10 @@ module.exports.addsubimgproduct = async (req, res) => {
                     status: false
                 })
             }
-            image = reqFiles[0]
+            
 
             const data = { product_subimage1: image }
+            
             const edit = await Product.findByIdAndUpdate(req.params.id, data, { new: true })
             return res.status(200).send({ status: true, message: "เพิ่มรูปภาพเรียบร้อย", data: edit });
         });
