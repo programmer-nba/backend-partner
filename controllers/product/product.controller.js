@@ -23,7 +23,9 @@ const storage = multer.diskStorage({
 });
 
 const deleteimage = (filePath) => {
+    
     const fullPath = path.join(__dirname, '../../', filePath);
+    console.log(fullPath)
     fs.access(fullPath, fs.constants.F_OK, (err) => {
         if (!err) {
             fs.unlink(fullPath, (unlinkErr) => {
@@ -203,8 +205,8 @@ module.exports.addimgproduct = async (req, res) => {
         let upload = multer({ storage: storage }).single("image");
         upload(req, res, async function (err) {
             console.log(req.file)
-            // const reqFiles = [];
-            // const result = [];
+            const reqFiles = [];
+            const result = [];
             if (err) {
                 return res.status(500).send(err);
             }
@@ -214,27 +216,27 @@ module.exports.addimgproduct = async (req, res) => {
             let image = '' // ตั้งตัวแปรรูป
             // ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
             if (req.file) {
-                // const url = '/assets/image/emarket/';
-                // const reqFiles = [];
+                const url = '/assets/image/emarket/';
+                const reqFiles = [];
 
-                // req.files.forEach(file => {
-                // reqFiles.push(url + file.filename);
-                // });
+                req.files.forEach(file => {
+                reqFiles.push(url + file.filename);
+                });
 
-                // image = reqFiles[0];
+                image = reqFiles[0];
 
                 const product = await Product.findById(req.params.id);
                 if (product.product_image != '') {
                     deleteimage(product.product_image);
                 }
             } else {
-                fs.unlinkSync(req.file.path);
+               
                 return res.json({
                     message: "not found any file",
                     status: false
                 })
             }
-            const data = { product_image: req.file.path }
+            const data = { product_image: image }
             const edit = await Product.findByIdAndUpdate(req.params.id, data, { new: true })
             return res.status(200).send({ status: true, message: "เพิ่มรูปภาพเรียบร้อย", data: edit });
         });
