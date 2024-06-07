@@ -205,7 +205,7 @@ module.exports.addimgproduct = async (req, res) => {
             return res.status(500).send(err);
         }
       
-     
+        console.log("อัพโหลดรูปสินค้า")
 
         let image = '' // ตั้งตัวแปรรูป
         //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
