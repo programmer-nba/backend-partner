@@ -8,7 +8,8 @@ const {
 
 const fs = require('fs');
 const path = require('path');
-const uploadFolder = path.join(__dirname, '../../assets/image/emarket');
+// const uploadFolder = path.join(__dirname, '../../assets/image/emarket');
+const uploadFolder = path.join(__dirname, '../../assets/image/test');
 fs.mkdirSync(uploadFolder, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -17,7 +18,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + "-" + file.originalname);
-        //console.log(file.originalname);
+        console.log(file.originalname);
     },
 });
 
