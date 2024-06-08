@@ -3,6 +3,7 @@ const axios = require("axios");
 //เพิ่มสินค้า producttg
 module.exports.addProducttg = async (req, res) => {
     try{
+        console.log(`${process.env.API_TOSSAGUNSHOP}/product/tossagun/partner`)
         const apiResponse = await axios.post(`${process.env.API_TOSSAGUNSHOP}/product/tossagun/partner`, req.body, {
             headers: {
                 "Content-Type": "application/json",
