@@ -200,3 +200,47 @@ module.exports.acceptcontractonestopshop = async (req, res) => {
     }
 
 }
+
+// ดึงสัญญา แบบ เซ็นเอกสาร
+module.exports.getcontractsign = async (req, res) => {
+    try{
+        const apiResponse = await axios.get(`${process.env.API_OFFICE}/lawyer/${req.params.id}/userterms-main`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if(apiResponse.data.status == true){
+            return res.status(200).send({ status: true, data: apiResponse.data.data });
+        }else{
+            return res.status(404).send({ status: false, message: "ไม่พบข้อมูล" });
+        }
+
+    }catch(error){
+        return res.status(500).send({ status: false, error: error.message });
+    }
+}
+// ยอมรับสัญญา แบบ เซ็นเอกสาร
+module.exports.acceptcontractsign = async (req, res) => {
+    try{
+        const signatures = req.body.signatures;
+        const apiResponse = await axios.put(`${process.env.API_OFFICE}/lawyer/${req.params.id}`,{
+            signatures: signatures,
+            status:"ลงนามแล้ว"
+
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if(apiResponse.data.status == true){
+            return res.status(200).send({ status: true, data: apiResponse.data.data });
+        }else{
+            return res.status(404).send({ status: false, message: "ไม่สามารถลงนามได้" });
+        }
+    }catch(error){
+        return res.status(500).send({ status: false, error: error.message });
+    }
+
+}

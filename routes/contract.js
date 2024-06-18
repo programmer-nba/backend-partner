@@ -24,5 +24,13 @@ router.put('/acceptcontractonestopservice/:id', Auth.partner, Contract.acceptcon
 // ยอมรับสัญญาเข้าใช้งานระบบ  onestopshop
 router.put('/acceptcontractonestopshop/:id', Auth.partner, Contract.acceptcontractonestopshop)
 
+//ดึงสัญญาแบบเซ็นตาม partner_id
+router.get('/getcontractsignbypartnerid/:id', Auth.partner, Contract.getcontractsign)
+
+// ยอมรับสัญญาแบบเซ็น
+router.put('/acceptcontractsign/:id', Auth.partner, Contract.acceptcontractsign)
+
+
+
 
 module.exports = router;
