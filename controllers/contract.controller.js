@@ -4,18 +4,21 @@ const axios = require("axios");
 // ดึงสัญญาทตาม partner id
 module.exports.getcontractbypartnerid = async (req, res) => {
     try{
+       
         const apiResponse = await axios.get(`${process.env.API_OFFICE}/lawyer/${req.params.id}/userterms`,
         {
           headers: {
             "Content-Type": "application/json",
           },
         });
+        
         if(apiResponse.data.status == true){
             return res.status(200).send({ status: true, data: apiResponse.data.data });
         }else{
             return res.status(404).send({ status: false, message: "ไม่พบข้อมูล" });
         }
     }catch(error){
+       
         return res.status(500).send({ status: false, error: error.message });
     
     }
