@@ -19,12 +19,8 @@ router.delete('/:id',userAuth.partner ,Productshop.delete);
 //เพิ่มรูปสินค้า
 router.put('/image/:id', userAuth.partner, Productshop.addimgproduct);
 
-
-
-
 //เปิด-ปิดสถานะสินค้า
 router.put('/status/:id',userAuth.partner, Productshop.status);
-
 
 //office
 router.get('/office', userAuth.public, Productshop.getall);
