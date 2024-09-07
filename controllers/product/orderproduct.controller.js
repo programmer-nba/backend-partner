@@ -17,6 +17,10 @@ module.exports.create = async (req, res) => {
             if(checkproduct.product_stock <= element.product_qty){
                 return res.status(400).json({message:"สินค้า"+checkproduct.product_name+" มีไม่พอสั่ง", status: false});
             }
+            element.product_image = checkproduct.product_image
+            element.product_subimage1 = checkproduct.product_subimage1
+            element.product_subimage2 = checkproduct.product_subimage2
+            element.product_subimage3 = checkproduct.product_subimage3
         })
         //ถ้าพอให้หักสต็อกสินค้าเลย
         product.forEach(async (element)=>{
