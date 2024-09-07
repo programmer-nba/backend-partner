@@ -18,6 +18,9 @@ const OrderproductSchema = new mongoose.Schema(
         product_id:{type: mongoose.Schema.Types.ObjectId,ref:'product',default:null}, //ไอดีสินค้า
         product_name:{type:String,require:false,default:""}, //ชื่อสินค้า
         product_image:{type:String,require:false,default:""}, //รูปสินค้า
+        product_subimage1:{type:String,require:false,default:""}, //รูปสินค้า
+        product_subimage2:{type:String,require:false,default:""}, //รูปสินค้า
+        product_subimage3:{type:String,require:false,default:""}, //รูปสินค้า
         product_price:{type:Number,require:false,default:0}, //ราคาสินค้า
         product_qty:{type:Number,require:false,default:0}, //จำนวนสินค้า
         product_total:{type:Number,require:false,default:0}, //ราคารวมสินค้า
