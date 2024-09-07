@@ -166,6 +166,9 @@ module.exports.approve = async (req, res) => {
             product_detail: data.product_detail,
             product_stock: data.product_stock,
             product_image: data.product_image,
+            product_subimage1: data.product_subimage1,
+            product_subimage2: data.product_subimage2,
+            product_subimage3: data.product_subimage3,
             product_status: true
         });
         const add = await product.save();
