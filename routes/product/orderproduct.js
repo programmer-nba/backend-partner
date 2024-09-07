@@ -15,6 +15,8 @@ router.get('/byid/:id',orderproduct.getbyid);
 //แสดงออเดอร์ e-market ตามไอดี partner
 router.get('/bypartner/:id',orderproduct.getbyidpartner);
 
+router.get('/bycustomer/:customer_id',orderproduct.getbyidcustomer);
+
 //แก้ไขออเดอร์ e-market ตามไอดี
 router.put('/:id',orderproduct.update);
 

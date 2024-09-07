@@ -71,6 +71,15 @@ module.exports.getbyidpartner = async (req, res) => {
     }
 };
 
+module.exports.getbyidcustomer = async (req, res) => {
+    try{
+        const orderproduct = await Orderproduct.find({customer_id:req.params.customer_id});
+        return res.status(200).json({message:"แสดงออเดอร์สำเร็จ", status: true, data: orderproduct});
+    }catch(error){
+        return res.status(500).json({message:error.message, status: false});
+    }
+};
+
 //แก้ไขออเดอร์ e-market ตามไอดี
 module.exports.update = async (req, res) => {
     try{
