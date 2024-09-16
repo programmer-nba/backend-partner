@@ -7,6 +7,7 @@ const RequestProductSchema = new mongoose.Schema(
     product_status_type:{type:String,default:true}, //สถานะสินค้า  (ฝากขาย , สินค้าของตัวเอง)
     product_store :{type:String,require:true}, //(ของตัวเอง,ของคู่ค้า)
     product_category:{type:String,default:""}, //หมวดหมู่สินค้า
+    product_provider: {type: String,default:"normal"},
     product_costprice:{type:Number,require:true},//ราคาต้นทุน
     product_price:{type:Number,require:true}, //ราคาสินค้า
     product_partner_id:{type: mongoose.Schema.Types.ObjectId,ref:'partner',default:null}, //ไอดีคู่ค้า

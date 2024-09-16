@@ -51,10 +51,12 @@ module.exports.add = async (req, res) => {
             status: "รอการอนุมัติ",
             date: Date.now()
         }
+       
         const data = new Requestproduct({
             product_name: req.body.product_name,
             product_status_type: req.body.product_status_type,
             product_category: req.body.product_category,
+            product_provider: req.body.product_provider,
             product_costprice: req.body.product_costprice,
             product_price: req.body.product_price,
             product_store: req.body.product_store,
@@ -109,6 +111,7 @@ module.exports.update = async (req, res) => {
                 product_name: req.body.product_name,
                 product_status_type: req.body.product_status_type,
                 product_category: req.body.product_category,
+                product_provider: req.body.product_provider,
                 product_costprice: req.body.product_costprice,
                 product_price: req.body.product_price,
                 product_store: req.body.product_store,
@@ -159,6 +162,7 @@ module.exports.approve = async (req, res) => {
             product_name: data.product_name,
             product_status_type: data.product_status_type,
             product_category: data.product_category,
+            product_provider: data.product_provider,
             product_costprice: data.product_costprice,
             product_price: data.product_price,
             product_store: data.product_store,
