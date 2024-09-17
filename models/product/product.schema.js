@@ -29,7 +29,7 @@ const validateproduct = (data) => {
         product_name:Joi.string().required().label("กรุณากรอกสินค้า"),
         product_status_type:Joi.string().required().label("กรุณากรอกสถานะสินค้า"),
         product_category:Joi.string().required().label("กรุณากรอกหมวดหมู่สินค้า"),
-        product_provider:Joi.string().valid('normal', 'coop').required().label("กรุณากรอกประเภทสินค้า"),
+        product_provider:Joi.string().required().label("กรุณากรอกประเภทสินค้า"),
         product_price:Joi.number().required().label("กรุณากรอกราคาสินค้า"),
         product_store:Joi.string().required().label("กรุณากรอกสถานะสินค้า"),
         product_detail:Joi.string().required().label("กรุณากรอกรายละเอียดสินค้า"),
