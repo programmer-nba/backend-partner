@@ -61,6 +61,7 @@ module.exports.add = async (req, res) => {
             product_partner_id: (req.body.product_partner_id == undefined || req.body.product_partner_id == '') ? null : req.body.product_partner_id,
             product_detail: req.body.product_detail,
             product_stock: req.body.product_stock,
+            product_package_options: req.body.product_package_options,
             product_status: false
         });
 

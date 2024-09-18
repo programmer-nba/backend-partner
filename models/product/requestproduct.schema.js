@@ -17,6 +17,13 @@ const RequestProductSchema = new mongoose.Schema(
     product_subimage1:{type:String,default:""}, //รูปภาพสินค้าย่อย 1
     product_subimage2:{type:String,default:""}, //รูปภาพสินค้าย่อย 2
     product_subimage3:{type:String,default:""}, //รูปภาพสินค้าย่อย 3
+    product_package_options:{type:[{
+      package_qty:{type:Number,require:true},//จำนวนสินค้าต่อแพ็คเกจ
+      package_weight:{type:Number,require:true},//น้ำหนัก
+      package_width:{type:Number,require:true},//กว้าง
+      package_length:{type:Number,require:true},//ยาว
+      package_height:{type:Number,require:true},//สูง
+    }],default:[]},
     request_status:{type:Boolean,default:false}, //สถานะการขอสินค้า (true: อนุมัติ , false: รอการอนุมัติ)
     request_status_detail:{type:[{
       status:{type:String,default:""}, //สถานะการขอสินค้า
@@ -24,6 +31,7 @@ const RequestProductSchema = new mongoose.Schema(
     }],default:[]}, //รายละเอียดสถานะการขอสินค้า
     office_id:{type:String,default:""}, //คนอนุมัติ
     office_name:{type:String,default:""}, //ชื่อคนอนุมัติ
+
     
     
 

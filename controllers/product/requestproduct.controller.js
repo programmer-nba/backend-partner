@@ -65,6 +65,7 @@ module.exports.add = async (req, res) => {
             product_stock: req.body.product_stock,
             request_status: false,
             request_status_detail: request_status_detail,
+            product_package_options: req.body.product_package_options
         });
         const add = await data.save();
         return res.status(200).json({ status: true, message: "คำร้องขอฝากขายสินค้าสำเร็จ", data: add });
@@ -118,6 +119,7 @@ module.exports.update = async (req, res) => {
                 product_partner_id: req.body.product_partner_id,
                 product_detail: req.body.product_detail,
                 product_stock: req.body.product_stock,
+                product_package_options: req.body.product_package_options
             }
             const edit = await Requestproduct.findByIdAndUpdate(req.params.id, data, { new: true });
             return res.status(200).json({ status: true, message: "อัพเดทข้อมูลคำร้องขอฝากขายสินค้าสำเร็จ", data: edit });
@@ -173,6 +175,7 @@ module.exports.approve = async (req, res) => {
             product_subimage1: data.product_subimage1,
             product_subimage2: data.product_subimage2,
             product_subimage3: data.product_subimage3,
+            product_package_options: data.product_package_options,
             product_status: true
         });
         const add = await product.save();

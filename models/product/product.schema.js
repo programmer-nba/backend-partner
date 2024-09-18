@@ -18,6 +18,13 @@ const ProductSchema = new mongoose.Schema(
     product_subimage1:{type:String,default:""}, //รูปภาพสินค้าย่อย 1
     product_subimage2:{type:String,default:""}, //รูปภาพสินค้าย่อย 2
     product_subimage3:{type:String,default:""}, //รูปภาพสินค้าย่อย 3
+    product_package_options:{type:[{
+      package_qty:{type:Number,require:true},//จำนวนสินค้าต่อแพ็คเกจ
+      package_weight:{type:Number,require:true},//น้ำหนัก
+      package_width:{type:Number,require:true},//กว้าง
+      package_length:{type:Number,require:true},//ยาว
+      package_height:{type:Number,require:true},//สูง
+    }],default:[]},
   },
   {timestamps: true}
 );
@@ -34,7 +41,15 @@ const validateproduct = (data) => {
         product_store:Joi.string().required().label("กรุณากรอกสถานะสินค้า"),
         product_detail:Joi.string().required().label("กรุณากรอกรายละเอียดสินค้า"),
         product_stock:Joi.number().required().label("กรุณากรอกจำนวนสินค้า"),
-
+        product_package_options: Joi.array().items(
+          Joi.object({
+              package_qty: Joi.number().required().label("กรุณากรอกจำนวนสินค้าต่อแพ็คเกจ"),
+              package_weight: Joi.number().required().label("กรุณากรอกน้ำหนักแพ็คเกจ"),
+              package_width: Joi.number().required().label("กรุณากรอกความกว้างของแพ็คเกจ"),
+              package_length: Joi.number().required().label("กรุณากรอกความยาวของแพ็คเกจ"),
+              package_height: Joi.number().required().label("กรุณากรอกความสูงของแพ็คเกจ"),
+          })
+      ).required().label("กรุณากรอกข้อมูลแพ็คเกจ"),
     });
     return schema.validate(data);
 };
