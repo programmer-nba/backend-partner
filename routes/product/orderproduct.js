@@ -26,7 +26,13 @@ router.delete('/:id',orderproduct.delete);
 // จัดส่งออเดอร์แล้ว
 router.put('/delivery/:id',orderproduct.delivery);
 
+// รับสินค้าแล้ว
+router.put('/receive/:id',orderproduct.receive);
+
 // ยกเลิกออเดอร์
 router.put('/cancel/:id',orderproduct.cancel);
+
+// อัพโหลดสลิป
+router.put('/addslippayment/:id',orderproduct.addSlippayment);
 
 module.exports = router;

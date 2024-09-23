@@ -1,6 +1,26 @@
 const { Orderproduct } = require("../../models/product/orderproduct.schema");
 const { Product } = require("../../models/product/product.schema");
 const Partner = require("../../models/partner.schema");
+const multer = require("multer");
+const fs = require('fs');
+const path = require('path');
+
+const uploadFolder = path.join(__dirname, '../../assets/image/emarket/slippayment');
+fs.mkdirSync(uploadFolder, { recursive: true });
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadFolder);
+    },
+    filename: function (req, file, cb) {
+        const orderId = req.params.id;
+        const extension = path.extname(file.originalname);
+        const filename = `slip_order${orderId}${extension}`;
+        cb(null, filename);
+        console.log(`File saved as: ${filename}`);
+    },
+});
+
 //สร้างออเดอร์ e-market
 module.exports.create = async (req, res) => {
     try{
@@ -133,6 +153,21 @@ module.exports.delivery = async (req, res) => {
     }
 };
 
+//ได้รับออเดอร์แล้ว
+module.exports.receive = async (req, res) => {
+    try{
+        const orderproduct = await Orderproduct.findById(req.params.id);
+        if(!orderproduct){
+            return res.status(400).json({message:"ไม่พบ order", status: false});
+        }
+        orderproduct.statusdetail.push({status:"รับสินค้าแล้ว",date:Date.now()});
+        const update = await Orderproduct.findByIdAndUpdate(req.params.id, orderproduct,{new:true})
+        return res.status(200).json({message:"รับสินค้าสำเร็จ", status: true, data: update});
+    }catch(error){
+        return res.status(500).json({message:error.message, status: false});
+    }
+};
+
 // ยกเลิกออเดอร์
 module.exports.cancel = async (req, res) => {
     try{
@@ -148,7 +183,63 @@ module.exports.cancel = async (req, res) => {
     }
 };
 
+module.exports.addSlippayment = async (req, res) => {
+    try {
+        let upload = multer({ storage: storage }).array("image", 20);
+        upload(req, res, async function (err) {
+            if (err) {
+                return res.status(500).send(err);
+            }
+           
+            let image = '' // ตั้งตัวแปรรูป
+            //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
+            if (req.files) {
+                const url = '/assets/image/emarket/slippayment';
+                const reqFiles = [];
+          
+                req.files.forEach(file => {
+                    reqFiles.push(url + file.filename);
+                });
+          
+                image = reqFiles[0];
+          
+                const order = await Orderproduct.findById(req.params.id);
+                if (order.slip_payment!= '')
+                {
+                    deleteimage(order.slip_payment);
+                }
+              } else {
+                return res.json({
+                  message: "not found any files",
+                  status: false
+                })
+              }
+            const data = { slip_payment: image }
+            const edit = await Orderproduct.findByIdAndUpdate(req.params.id, data, { new: true })
+            return res.status(200).send({ status: true, message: "เพิ่มรูปภาพเรียบร้อย", data: edit });
+        });
+    } catch (error) {
+        return res.status(500).send({ status: false, error: error.message });
+    }
+};
 
+const deleteimage = (filePath) => {
+    console.log(__dirname, '..', filePath);
+    const fullPath = path.join(__dirname, '..', filePath);
+    fs.access(fullPath, fs.constants.F_OK, (err) => {
+      if (!err) {
+        fs.unlink(fullPath, (unlinkErr) => {
+          if (unlinkErr) {
+            console.error(`Failed to delete file: ${filePath}`, unlinkErr);
+          } else {
+            console.log(`Successfully deleted file: ${filePath}`);
+          }
+        });
+      } else {
+        console.log(`File not found: ${filePath}`);
+      }
+    });
+};
 //ฟังก์ชั่น สร้างเลขอ้างอิง order
 async function runreforder() {
 
