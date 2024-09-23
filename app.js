@@ -63,7 +63,7 @@ app.use(prefix + '/onestopservice', require('./routes/tossagunshop/onestopservic
 app.use(prefix + '/posshop', require('./routes/shop/posshop'));
 
 //สินค้าลงขายใน tossagunshop
-app.use(prefix + '/producttg', require('./routes/producttg/producttg'));
+app.use(prefix + '/consignment/product', require('./routes/consignment/consignment.product'));
 
 // สัญญา
 app.use(prefix + '/contract', require('./routes/contract'));
