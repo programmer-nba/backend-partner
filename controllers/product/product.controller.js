@@ -54,6 +54,7 @@ module.exports.add = async (req, res) => {
             product_name: req.body.product_name,
             product_status_type: req.body.product_status_type,
             product_category: req.body.product_category,
+            product_subcategory: req.body.product_subcategory,
             product_provider: req.body.product_provider,
             product_costprice: req.body.product_costprice,
             product_price: req.body.product_price,
