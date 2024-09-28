@@ -205,7 +205,7 @@ module.exports.status = async (req, res) => {
 //เพิ่มรูปสินค้า
 module.exports.addimgproduct = async (req, res) => {
     try {
-        let upload = multer({ storage: storage }).single("image");
+        let upload = multer({ storage: storage }).array("image", 20);
         upload(req, res, async function (err) {
             console.log(req.file)
             const reqFiles = [];
@@ -218,7 +218,7 @@ module.exports.addimgproduct = async (req, res) => {
 
             let image = '' // ตั้งตัวแปรรูป
             // ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
-            if (req.file) {
+            if (req.files) {
                 const url = '/assets/image/emarket/';
                 const reqFiles = [];
 
