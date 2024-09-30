@@ -35,4 +35,7 @@ router.put('/cancel/:id',orderproduct.cancel);
 // อัพโหลดสลิป
 router.put('/addslippayment/:id',orderproduct.addSlippayment);
 
+//ยอดขาย
+router.put('/report/:partner_id', auth.partner, orderproduct.report);
+
 module.exports = router;
