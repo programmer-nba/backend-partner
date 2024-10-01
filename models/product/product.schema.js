@@ -25,6 +25,8 @@ const ProductSchema = new mongoose.Schema(
       package_width:{type:Number,require:true},//กว้าง
       package_length:{type:Number,require:true},//ยาว
       package_height:{type:Number,require:true},//สูง
+      isCustom: {type:Boolean,require:false},
+      selectedPackage: {type:String,require:false}
     }],default:[]},
   },
   {timestamps: true}

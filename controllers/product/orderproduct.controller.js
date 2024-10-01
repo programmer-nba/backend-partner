@@ -301,7 +301,6 @@ exports.report = async (req, res) => {
     const partner_id = new ObjectId(req.params.partner_id);
 
     if (id === "day") {
-      // Aggregation pipeline to get the daily report with the new calculations
       let reportorder = await Orderproduct.aggregate([
         {
           $match: {
@@ -318,87 +317,72 @@ exports.report = async (req, res) => {
         },
         {
           $lookup: {
-            from: "products", // Ensure this collection name is correct
-            localField: "product.product_id", // Make sure 'product_id' is the correct field to match with
-            foreignField: "_id", // Ensure '_id' in products matches the field in 'Orderproduct'
+            from: "products",
+            localField: "product.product_id",
+            foreignField: "_id",
             as: "productDetails",
           },
         },
         {
-          $unwind: "$productDetails", // This breaks if productDetails is empty
+          $unwind: "$productDetails",
+        },
+        {
+          $group: {
+            _id: "$_id",
+            orderTotal: { $first: "$alltotal" },
+            createdAt: { $first: "$createdAt" },
+            productTotals: {
+              $push: {
+                costPrice: {
+                  $multiply: [
+                    "$productDetails.product_costprice",
+                    "$product.product_qty",
+                  ],
+                },
+                price: {
+                  $multiply: [
+                    "$productDetails.product_price",
+                    "$product.product_qty",
+                  ],
+                },
+                profit: {
+                  $multiply: [
+                    {
+                      $subtract: [
+                        { $multiply: ["$productDetails.product_price", 0.93] },
+                        "$productDetails.product_costprice",
+                      ],
+                    },
+                    "$product.product_qty",
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            total_costprice: { $sum: "$productTotals.costPrice" },
+            total_price: { $sum: "$productTotals.price" },
+            total_profit: { $sum: "$productTotals.profit" },
+          },
         },
         {
           $group: {
             _id: { $dateToString: { format: "%Y/%m/%d", date: "$createdAt" } },
-            total: { $sum: "$alltotal" }, // Total sales (already calculated in Orderproduct)
-            count: { $sum: 1 }, // Count of orders
-            total_costprice: {
-              $sum: {
-                $multiply: [
-                  "$productDetails.product_costprice",
-                  "$product.product_total_qty",
-                ],
-              },
-            }, // Sum of cost prices for all products, accounting for quantities
-            total_price: {
-              $sum: {
-                $multiply: [
-                  "$productDetails.product_price",
-                  "$product.product_total_qty",
-                ],
-              },
-            }, // Sum of product prices (actual selling prices)
-            total_profit: {
-              $sum: {
-                $multiply: [
-                  {
-                    $subtract: [
-                      { $multiply: ["$productDetails.product_price", 0.93] }, // Sale price * margin
-                      "$productDetails.product_costprice", // Cost price
-                    ],
-                  },
-                  "$product.product_total_qty", // Multiply profit per product by quantity
-                ],
-              },
-            },
+            total: { $sum: "$orderTotal" },
+            count: { $sum: 1 },
+            total_costprice: { $sum: "$total_costprice" },
+            total_price: { $sum: "$total_price" },
+            total_profit: { $sum: "$total_profit" },
             total_profit_partnet: {
               $sum: {
-                $divide: [
-                  {
-                    $multiply: [
-                      {
-                        $subtract: [
-                          {
-                            $multiply: ["$productDetails.product_price", 0.93],
-                          },
-                          "$productDetails.product_costprice",
-                        ],
-                      },
-                      "$product.product_total_qty",
-                    ],
-                  },
-                  2,
-                ],
+                $divide: ["$total_profit", 2],
               },
             },
             total_profit_tossagun: {
               $sum: {
-                $divide: [
-                  {
-                    $multiply: [
-                      {
-                        $subtract: [
-                          {
-                            $multiply: ["$productDetails.product_price", 0.93],
-                          },
-                          "$productDetails.product_costprice",
-                        ],
-                      },
-                      "$product.product_total_qty",
-                    ],
-                  },
-                  2,
-                ],
+                $divide: ["$total_profit", 2],
               },
             },
           },
@@ -514,7 +498,6 @@ exports.report = async (req, res) => {
         {
           $match: {
             createdAt: {
-              //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
               $gte: dayjs().startOf("month").toDate(),
               $lt: dayjs().endOf("month").toDate(),
             },
@@ -523,35 +506,82 @@ exports.report = async (req, res) => {
           },
         },
         {
+          $unwind: "$product",
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "product.product_id",
+            foreignField: "_id",
+            as: "productDetails",
+          },
+        },
+        {
+          $unwind: "$productDetails",
+        },
+        {
           $group: {
-            _id: { $dateToString: { format: "%Y/%m/01", date: "$createdAt" } },
-            //ยอดขาย
-            total: { $sum: "$alltotal" },
-            //จำนวนออเดอร์
-            count: { $sum: 1 },
-            //ยอดขายที่ผ่านแพลต์ฟอร์ม
-            platform: {
-              $sum: {
-                $cond: {
-                  if: { $ne: ["$payment", "จ่ายเงินสด"] },
-                  then: "$alltotal",
-                  else: 0,
+            _id: "$_id",
+            orderTotal: { $first: "$alltotal" },
+            createdAt: { $first: "$createdAt" },
+            productTotals: {
+              $push: {
+                costPrice: {
+                  $multiply: [
+                    "$productDetails.product_costprice",
+                    "$product.product_qty",
+                  ],
                 },
-              },
-            },
-            //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
-            notplatform: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$payment", "จ่ายเงินสด"] },
-                  then: "$alltotal",
-                  else: 0,
+                price: {
+                  $multiply: [
+                    "$productDetails.product_price",
+                    "$product.product_qty",
+                  ],
+                },
+                profit: {
+                  $multiply: [
+                    {
+                      $subtract: [
+                        { $multiply: ["$productDetails.product_price", 0.93] },
+                        "$productDetails.product_costprice",
+                      ],
+                    },
+                    "$product.product_qty",
+                  ],
                 },
               },
             },
           },
         },
+        {
+          $addFields: {
+            total_costprice: { $sum: "$productTotals.costPrice" },
+            total_price: { $sum: "$productTotals.price" },
+            total_profit: { $sum: "$productTotals.profit" },
+          },
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y/%m/01", date: "$createdAt" } },
+            total: { $sum: "$orderTotal" },
+            count: { $sum: 1 },
+            total_costprice: { $sum: "$total_costprice" },
+            total_price: { $sum: "$total_price" },
+            total_profit: { $sum: "$total_profit" },
+            total_profit_partnet: {
+              $sum: {
+                $divide: ["$total_profit", 2],
+              },
+            },
+            total_profit_tossagun: {
+              $sum: {
+                $divide: ["$total_profit", 2],
+              },
+            },
+          },
+        },
       ]);
+
       if (reportorder.length == 0) {
         reportorder = [
           {
@@ -562,8 +592,6 @@ exports.report = async (req, res) => {
             notplatform: 0,
           },
         ];
-      } else {
-        reportorder[0].gettoplatform = reportorder[0].total * (25 / 100);
       }
 
       //สินค้าขายดี ประจำเดือน
@@ -668,30 +696,76 @@ exports.report = async (req, res) => {
           },
         },
         {
+          $unwind: "$product",
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "product.product_id",
+            foreignField: "_id",
+            as: "productDetails",
+          },
+        },
+        {
+          $unwind: "$productDetails",
+        },
+        {
           $group: {
-            _id: { $dateToString: { format: "%Y/01/01", date: "$createdAt" } },
-            //ยอดขาย
-            total: { $sum: "$alltotal" },
-            //จำนวนออเดอร์
-            count: { $sum: 1 },
-            //ยอดขายที่ผ่านแพลต์ฟอร์ม
-            platform: {
-              $sum: {
-                $cond: {
-                  if: { $ne: ["$payment", "จ่ายเงินสด"] },
-                  then: "$alltotal",
-                  else: 0,
+            _id: "$_id",
+            orderTotal: { $first: "$alltotal" },
+            createdAt: { $first: "$createdAt" },
+            productTotals: {
+              $push: {
+                costPrice: {
+                  $multiply: [
+                    "$productDetails.product_costprice",
+                    "$product.product_qty",
+                  ],
+                },
+                price: {
+                  $multiply: [
+                    "$productDetails.product_price",
+                    "$product.product_qty",
+                  ],
+                },
+                profit: {
+                  $multiply: [
+                    {
+                      $subtract: [
+                        { $multiply: ["$productDetails.product_price", 0.93] },
+                        "$productDetails.product_costprice",
+                      ],
+                    },
+                    "$product.product_qty",
+                  ],
                 },
               },
             },
-            //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
-            notplatform: {
+          },
+        },
+        {
+          $addFields: {
+            total_costprice: { $sum: "$productTotals.costPrice" },
+            total_price: { $sum: "$productTotals.price" },
+            total_profit: { $sum: "$productTotals.profit" },
+          },
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y/01/01", date: "$createdAt" } },
+            total: { $sum: "$orderTotal" },
+            count: { $sum: 1 },
+            total_costprice: { $sum: "$total_costprice" },
+            total_price: { $sum: "$total_price" },
+            total_profit: { $sum: "$total_profit" },
+            total_profit_partnet: {
               $sum: {
-                $cond: {
-                  if: { $eq: ["$payment", "จ่ายเงินสด"] },
-                  then: "$alltotal",
-                  else: 0,
-                },
+                $divide: ["$total_profit", 2],
+              },
+            },
+            total_profit_tossagun: {
+              $sum: {
+                $divide: ["$total_profit", 2],
               },
             },
           },
@@ -708,8 +782,6 @@ exports.report = async (req, res) => {
             notplatform: 0,
           },
         ];
-      } else {
-        reportorder[0].gettoplatform = reportorder[0].total * (25 / 100);
       }
       //สินค้าขายดี ประจำปี
       let reportproduct = await Orderproduct.aggregate([
