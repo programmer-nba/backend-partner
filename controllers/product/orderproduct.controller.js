@@ -2,6 +2,7 @@ const { Orderproduct } = require("../../models/product/orderproduct.schema");
 const { Product } = require("../../models/product/product.schema");
 const Partner = require("../../models/partner.schema");
 const multer = require("multer");
+const XLSX = require("xlsx");
 const fs = require("fs");
 const path = require("path");
 
@@ -295,588 +296,353 @@ const deleteimage = (filePath) => {
   });
 };
 
+exports.exportReportToExcel = async (req, res) => {
+  try {
+    const id = req.body.id;
+    const partner_id = new ObjectId(req.body.partner_id);
+
+    const { startDate, endDate, rangeDate, format_type } = getDateRange(id);
+
+    // Generate the report data
+    const reportData = await generateReport({
+      startDate: rangeDate,
+      endDate: endDate,
+      format_type: "%Y/%m/%d",
+      partner_id: partner_id,
+    });
+
+    const workbook = XLSX.utils.book_new();
+
+    const worksheet = XLSX.utils.json_to_sheet(reportData);
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+
+    const exportDir = path.join(
+      __dirname,
+      "../../assets/image/emarket/exports_report"
+    );
+    if (!fs.existsSync(exportDir)) {
+      fs.mkdirSync(exportDir, { recursive: true });
+    }
+
+    const filePath = path.join(exportDir, `report_${Date.now()}.xlsx`);
+    console.log("File path:", filePath);
+
+    XLSX.writeFile(workbook, filePath);
+    console.log("File written successfully!");
+
+    res.download(filePath, (err) => {
+      if (err) {
+        console.error("File download error: ", err);
+      }
+    });
+  } catch (error) {
+    console.error("Error generating report: ", error);
+    res.status(500).send({ message: "Error generating report", error });
+  }
+};
+
 exports.report = async (req, res) => {
   try {
     const id = req.body.id;
     const partner_id = new ObjectId(req.params.partner_id);
+    let startDate, endDate, rangeDate, format_type;
 
-    if (id === "day") {
-      let reportorder = await Orderproduct.aggregate([
-        {
-          $match: {
-            createdAt: {
-              $gte: dayjs().startOf("day").toDate(),
-              $lt: dayjs().endOf("day").toDate(),
-            },
-            "statusdetail.status": "กำลังเตรียมจัดส่ง",
-            partner_id: partner_id,
-          },
-        },
-        {
-          $unwind: "$product",
-        },
-        {
-          $lookup: {
-            from: "products",
-            localField: "product.product_id",
-            foreignField: "_id",
-            as: "productDetails",
-          },
-        },
-        {
-          $unwind: "$productDetails",
-        },
-        {
-          $group: {
-            _id: "$_id",
-            orderTotal: { $first: "$alltotal" },
-            createdAt: { $first: "$createdAt" },
-            productTotals: {
-              $push: {
-                costPrice: {
-                  $multiply: [
-                    "$productDetails.product_costprice",
-                    "$product.product_qty",
-                  ],
-                },
-                price: {
-                  $multiply: [
-                    "$productDetails.product_price",
-                    "$product.product_qty",
-                  ],
-                },
-                profit: {
-                  $multiply: [
-                    {
-                      $subtract: [
-                        { $multiply: ["$productDetails.product_price", 0.93] },
-                        "$productDetails.product_costprice",
-                      ],
-                    },
-                    "$product.product_qty",
-                  ],
-                },
-              },
-            },
-          },
-        },
-        {
-          $addFields: {
-            total_costprice: { $sum: "$productTotals.costPrice" },
-            total_price: { $sum: "$productTotals.price" },
-            total_profit: { $sum: "$productTotals.profit" },
-          },
-        },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y/%m/%d", date: "$createdAt" } },
-            total: { $sum: "$orderTotal" },
-            count: { $sum: 1 },
-            total_costprice: { $sum: "$total_costprice" },
-            total_price: { $sum: "$total_price" },
-            total_profit: { $sum: "$total_profit" },
-            total_profit_partnet: {
-              $sum: {
-                $divide: ["$total_profit", 2],
-              },
-            },
-            total_profit_tossagun: {
-              $sum: {
-                $divide: ["$total_profit", 2],
-              },
-            },
-          },
-        },
-      ]);
-
-      // If no data, return default values for the day
-      if (reportorder.length == 0) {
-        reportorder = [
-          {
-            _id: dayjs().startOf("day").format("YYYY/MM/DD"),
-            total: 0,
-            count: 0,
-            total_costprice: 0,
-            total_price: 0,
-            total_profit: 0,
-            total_profit_partnet: 0,
-            total_profit_tossagun: 0,
-          },
-        ];
-      }
-
-      //สินค้าขายดี ประจำวัน
-      let reportproduct = await Orderproduct.aggregate([
-        {
-          $match: {
-            createdAt: {
-              //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
-              $gte: dayjs().startOf("day").toDate(),
-              $lt: dayjs().endOf("day").toDate(),
-            },
-            "statusdetail.status": "กำลังเตรียมจัดส่ง",
-            partner_id: partner_id,
-          },
-        },
-        {
-          $unwind: "$product",
-        },
-        {
-          $group: {
-            _id: "$product.product_id",
-            product_name: { $first: "$product.product_name" },
-            count: { $sum: "$product.product_qty" },
-          },
-        },
-      ]);
-
-      //ยอดขายย้อนหลัง ประจำวัน  แสดง มา 7 วัน
-      let reportorderback = await Orderproduct.aggregate([
-        {
-          $match: {
-            createdAt: {
-              //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
-              $gte: dayjs().startOf("day").subtract(7, "day").toDate(),
-              $lt: dayjs().endOf("day").toDate(),
-            },
-            "statusdetail.status": "กำลังเตรียมจัดส่ง",
-            partner_id: partner_id,
-          },
-        },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y/%m/%d", date: "$createdAt" } },
-            //ยอดขาย
-            total: { $sum: "$alltotal" },
-            //จำนวนออเดอร์
-            count: { $sum: 1 },
-            //ยอดขายที่ผ่านแพลต์ฟอร์ม
-            platform: {
-              $sum: {
-                $cond: {
-                  if: { $ne: ["$payment", "จ่ายเงินสด"] },
-                  then: "$alltotal",
-                  else: 0,
-                },
-              },
-            },
-            //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
-            notplatform: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$payment", "จ่ายเงินสด"] },
-                  then: "$alltotal",
-                  else: 0,
-                },
-              },
-            },
-          },
-        },
-      ]);
-      if (reportorderback.length == 0) {
-        reportorderback = [
-          {
-            _id: dayjs().startOf("day").format("YYYY/MM/DD"),
-            total: 0,
-            count: 0,
-            platform: 0,
-            notplatform: 0,
-          },
-        ];
-      }
-
-      return res.status(200).send({
-        reportorder: reportorder,
-        reportproduct: reportproduct,
-        reportorderback: reportorderback,
-        status: true,
-        message: "แสดงข้อมูลสำเร็จ",
-      });
-    } else if (id == "month") {
-      //ยอดขายประจำเดือน และ  //จำนวนออเดอร์ต่อเดือน
-      let reportorder = await Orderproduct.aggregate([
-        {
-          $match: {
-            createdAt: {
-              $gte: dayjs().startOf("month").toDate(),
-              $lt: dayjs().endOf("month").toDate(),
-            },
-            "statusdetail.status": "กำลังเตรียมจัดส่ง",
-            partner_id: partner_id,
-          },
-        },
-        {
-          $unwind: "$product",
-        },
-        {
-          $lookup: {
-            from: "products",
-            localField: "product.product_id",
-            foreignField: "_id",
-            as: "productDetails",
-          },
-        },
-        {
-          $unwind: "$productDetails",
-        },
-        {
-          $group: {
-            _id: "$_id",
-            orderTotal: { $first: "$alltotal" },
-            createdAt: { $first: "$createdAt" },
-            productTotals: {
-              $push: {
-                costPrice: {
-                  $multiply: [
-                    "$productDetails.product_costprice",
-                    "$product.product_qty",
-                  ],
-                },
-                price: {
-                  $multiply: [
-                    "$productDetails.product_price",
-                    "$product.product_qty",
-                  ],
-                },
-                profit: {
-                  $multiply: [
-                    {
-                      $subtract: [
-                        { $multiply: ["$productDetails.product_price", 0.93] },
-                        "$productDetails.product_costprice",
-                      ],
-                    },
-                    "$product.product_qty",
-                  ],
-                },
-              },
-            },
-          },
-        },
-        {
-          $addFields: {
-            total_costprice: { $sum: "$productTotals.costPrice" },
-            total_price: { $sum: "$productTotals.price" },
-            total_profit: { $sum: "$productTotals.profit" },
-          },
-        },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y/%m/01", date: "$createdAt" } },
-            total: { $sum: "$orderTotal" },
-            count: { $sum: 1 },
-            total_costprice: { $sum: "$total_costprice" },
-            total_price: { $sum: "$total_price" },
-            total_profit: { $sum: "$total_profit" },
-            total_profit_partnet: {
-              $sum: {
-                $divide: ["$total_profit", 2],
-              },
-            },
-            total_profit_tossagun: {
-              $sum: {
-                $divide: ["$total_profit", 2],
-              },
-            },
-          },
-        },
-      ]);
-
-      if (reportorder.length == 0) {
-        reportorder = [
-          {
-            _id: dayjs().startOf("month").format("YYYY/MM/01"),
-            total: 0,
-            count: 0,
-            platform: 0,
-            notplatform: 0,
-          },
-        ];
-      }
-
-      //สินค้าขายดี ประจำเดือน
-      let reportproduct = await Orderproduct.aggregate([
-        {
-          $match: {
-            createdAt: {
-              //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
-              $gte: dayjs().startOf("month").toDate(),
-              $lt: dayjs().endOf("month").toDate(),
-            },
-            "statusdetail.status": "กำลังเตรียมจัดส่ง",
-            partner_id: partner_id,
-          },
-        },
-        {
-          $unwind: "$product",
-        },
-        {
-          $group: {
-            _id: "$product.product_id",
-            product_name: { $first: "$product.product_name" },
-            count: { $sum: "$product.product_qty" },
-          },
-        },
-      ]);
-
-      //ยอดขายย้อนหลัง ประจำเดือน  แสดง มา 12 เดือน
-      let reportorderback = await Orderproduct.aggregate([
-        {
-          $match: {
-            createdAt: {
-              //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
-              $gte: dayjs().startOf("month").subtract(12, "month").toDate(),
-              $lt: dayjs().endOf("month").toDate(),
-            },
-            "statusdetail.status": "กำลังเตรียมจัดส่ง",
-            partner_id: partner_id,
-          },
-        },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y/%m/01", date: "$createdAt" } },
-            //ยอดขาย
-            total: { $sum: "$alltotal" },
-            //จำนวนออเดอร์
-            count: { $sum: 1 },
-            //ยอดขายที่ผ่านแพลต์ฟอร์ม
-            platform: {
-              $sum: {
-                $cond: {
-                  if: { $ne: ["$payment", "จ่ายเงินสด"] },
-                  then: "$alltotal",
-                  else: 0,
-                },
-              },
-            },
-            //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
-            notplatform: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$payment", "จ่ายเงินสด"] },
-                  then: "$alltotal",
-                  else: 0,
-                },
-              },
-            },
-          },
-        },
-      ]);
-      if (reportorderback.length == 0) {
-        reportorderback = [
-          {
-            _id: dayjs().startOf("month").format("YYYY/MM/01"),
-            total: 0,
-            count: 0,
-            platform: 0,
-            notplatform: 0,
-          },
-        ];
-      }
-
-      return res.status(200).send({
-        reportorder: reportorder,
-        reportproduct: reportproduct,
-        reportorderback: reportorderback,
-        status: true,
-        message: "แสดงข้อมูลสำเร็จ",
-      });
-    } else if (id == "year") {
-      //ยอดขายประจำปี และ  //จำนวนออเดอร์ต่อปี
-      let reportorder = await Orderproduct.aggregate([
-        {
-          $match: {
-            createdAt: {
-              //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
-              $gte: dayjs().startOf("year").toDate(),
-              $lt: dayjs().endOf("year").toDate(),
-            },
-            "statusdetail.status": "กำลังเตรียมจัดส่ง",
-            partner_id: partner_id,
-          },
-        },
-        {
-          $unwind: "$product",
-        },
-        {
-          $lookup: {
-            from: "products",
-            localField: "product.product_id",
-            foreignField: "_id",
-            as: "productDetails",
-          },
-        },
-        {
-          $unwind: "$productDetails",
-        },
-        {
-          $group: {
-            _id: "$_id",
-            orderTotal: { $first: "$alltotal" },
-            createdAt: { $first: "$createdAt" },
-            productTotals: {
-              $push: {
-                costPrice: {
-                  $multiply: [
-                    "$productDetails.product_costprice",
-                    "$product.product_qty",
-                  ],
-                },
-                price: {
-                  $multiply: [
-                    "$productDetails.product_price",
-                    "$product.product_qty",
-                  ],
-                },
-                profit: {
-                  $multiply: [
-                    {
-                      $subtract: [
-                        { $multiply: ["$productDetails.product_price", 0.93] },
-                        "$productDetails.product_costprice",
-                      ],
-                    },
-                    "$product.product_qty",
-                  ],
-                },
-              },
-            },
-          },
-        },
-        {
-          $addFields: {
-            total_costprice: { $sum: "$productTotals.costPrice" },
-            total_price: { $sum: "$productTotals.price" },
-            total_profit: { $sum: "$productTotals.profit" },
-          },
-        },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y/01/01", date: "$createdAt" } },
-            total: { $sum: "$orderTotal" },
-            count: { $sum: 1 },
-            total_costprice: { $sum: "$total_costprice" },
-            total_price: { $sum: "$total_price" },
-            total_profit: { $sum: "$total_profit" },
-            total_profit_partnet: {
-              $sum: {
-                $divide: ["$total_profit", 2],
-              },
-            },
-            total_profit_tossagun: {
-              $sum: {
-                $divide: ["$total_profit", 2],
-              },
-            },
-          },
-        },
-      ]);
-
-      if (reportorder.length == 0) {
-        reportorder = [
-          {
-            _id: dayjs().startOf("year").format("YYYY-01-01"),
-            total: 0,
-            count: 0,
-            platform: 0,
-            notplatform: 0,
-          },
-        ];
-      }
-      //สินค้าขายดี ประจำปี
-      let reportproduct = await Orderproduct.aggregate([
-        {
-          $match: {
-            createdAt: {
-              //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
-              $gte: dayjs().startOf("year").toDate(),
-              $lt: dayjs().endOf("year").toDate(),
-            },
-            "statusdetail.status": "กำลังเตรียมจัดส่ง",
-            partner_id: partner_id,
-          },
-        },
-        {
-          $unwind: "$product",
-        },
-        {
-          $group: {
-            _id: "$product.product_id",
-            product_name: { $first: "$product.product_name" },
-            count: { $sum: "$product.product_qty" },
-          },
-        },
-      ]);
-
-      //ยอดขายย้อนหลัง ประจำปี  แสดง มา 7 ปี
-      let reportorderback = await Orderproduct.aggregate([
-        {
-          $match: {
-            createdAt: {
-              //เช็ควันที่เริ่มต้น ถึง วันที่สิ้นสุด
-              $gte: dayjs().startOf("year").subtract(7, "year").toDate(),
-              $lt: dayjs().endOf("year").toDate(),
-            },
-            "statusdetail.status": "กำลังเตรียมจัดส่ง",
-            partner_id: partner_id,
-          },
-        },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y/01/01", date: "$createdAt" } },
-            //ยอดขาย
-            total: { $sum: "$alltotal" },
-            //จำนวนออเดอร์
-            count: { $sum: 1 },
-            //ยอดขายที่ผ่านแพลต์ฟอร์ม
-            platform: {
-              $sum: {
-                $cond: {
-                  if: { $ne: ["$payment", "จ่ายเงินสด"] },
-                  then: "$alltotal",
-                  else: 0,
-                },
-              },
-            },
-            //ยอดขายที่ไม่ผ่านแพลต์ฟอร์ม
-            notplatform: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$payment", "จ่ายเงินสด"] },
-                  then: "$alltotal",
-                  else: 0,
-                },
-              },
-            },
-          },
-        },
-      ]);
-      if (reportorderback.length == 0) {
-        reportorderback = [
-          {
-            _id: dayjs().startOf("year").format("YYYY-01-01"),
-            total: 0,
-            count: 0,
-            platform: 0,
-            notplatform: 0,
-          },
-        ];
-      }
-
-      return res.status(200).send({
-        reportorder: reportorder,
-        reportproduct: reportproduct,
-        reportorderback: reportorderback,
-        status: true,
-        message: "แสดงข้อมูลสำเร็จ",
-      });
+    if (id === "custom") {
+      startDate = new Date(req.body.startDate);
+      endDate = new Date(req.body.endDate);
+      rangeDate = dayjs(startDate).subtract(7, "day").toDate();
+      format_type = "%Y/%m/01";
     } else {
-      return res
-        .status(400)
-        .send({ status: false, message: "กรุณาข้อมูลประเภทไม่ถูกต้อง" });
+      ({ startDate, endDate, rangeDate, format_type } = getDateRange(id));
     }
+
+    const reportorder = await generateReport({
+      startDate,
+      endDate,
+      format_type,
+      partner_id,
+    });
+    const reportproduct = await generateProductReport({
+      startDate,
+      endDate,
+      partner_id,
+    });
+    const reportorderback = await generateReportBack({
+      rangeDate,
+      endDate,
+      format_type,
+      partner_id,
+    });
+
+    if (!reportorder.length) {
+      reportorder.push({
+        _id: dayjs(startDate).format("YYYY/MM/DD"),
+        total: 0,
+        count: 0,
+        total_basecost: 0,
+        total_costprice: 0,
+        total_price: 0,
+        total_profit: 0,
+        total_profit_partner: 0,
+        total_profit_tossagun: 0,
+        prepared_order: 0,
+        delivered_order: 0,
+        received_order: 0,
+        cancelled_order: 0,
+      });
+    }
+
+    if (!reportorderback.length) {
+      reportorderback.push({
+        _id: dayjs(rangeDate).format("YYYY/MM/DD"),
+        total: 0,
+        count: 0,
+      });
+    }
+
+    res.status(200).json({
+      reportorder,
+      reportproduct,
+      reportorderback,
+      status: true,
+      message: "แสดงข้อมูลสำเร็จ",
+    });
   } catch (error) {
-    return res.status(500).send({ status: false, message: error.message });
+    console.error(error);
+    res.status(500).json({ status: false, message: "เกิดข้อผิดพลาด" });
+  }
+};
+
+const generateReport = async ({
+  startDate,
+  endDate,
+  format_type,
+  partner_id,
+}) => {
+  return Orderproduct.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startDate, $lt: endDate },
+        partner_id: partner_id,
+      },
+    },
+    { $unwind: "$product" },
+    {
+      $lookup: {
+        from: "products",
+        localField: "product.product_id",
+        foreignField: "_id",
+        as: "productDetails",
+      },
+    },
+    { $unwind: "$productDetails" },
+    {
+      $group: {
+        _id: "$_id",
+        orderTotal: { $first: "$alltotal" },
+        createdAt: { $first: "$createdAt" },
+        statusdetail: { $first: "$statusdetail" },
+        productTotals: {
+          $push: {
+            baseCost: {
+              $multiply: [
+                "$productDetails.product_basecost",
+                "$product.product_qty",
+              ],
+            },
+            costPrice: {
+              $multiply: [
+                "$productDetails.product_costprice",
+                "$product.product_qty",
+              ],
+            },
+            price: {
+              $multiply: [
+                "$productDetails.product_price",
+                "$product.product_qty",
+              ],
+            },
+            profit: {
+              $multiply: [
+                {
+                  $subtract: [
+                    "$productDetails.product_costprice",
+                    { $ifNull: ["$productDetails.product_basecost", 0] },
+                  ],
+                },
+                "$product.product_qty",
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        total_basecost: { $sum: "$productTotals.baseCost" },
+        total_costprice: { $sum: "$productTotals.costPrice" },
+        total_price: { $sum: "$productTotals.price" },
+        total_profit: { $sum: "$productTotals.profit" },
+        latestStatus: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: "$statusdetail",
+                as: "status",
+                cond: { $ne: ["$$status.status", ""] },
+              },
+            },
+            -1,
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: format_type, date: "$createdAt" } },
+        total: { $sum: "$orderTotal" },
+        count: { $sum: 1 },
+        total_basecost: { $sum: "$total_basecost" },
+        total_costprice: { $sum: "$total_costprice" },
+        total_price: { $sum: "$total_price" },
+        total_profit: { $sum: "$total_profit" },
+        total_profit_partner: { $sum: { $divide: ["$total_profit", 2] } },
+        total_profit_tossagun: { $sum: { $divide: ["$total_profit", 2] } },
+        prepared_order: {
+          $sum: {
+            $cond: [
+              { $eq: ["$latestStatus.status", "กำลังเตรียมจัดส่ง"] },
+              1,
+              0,
+            ],
+          },
+        },
+        delivered_order: {
+          $sum: {
+            $cond: [{ $eq: ["$latestStatus.status", "จัดส่งแล้ว"] }, 1, 0],
+          },
+        },
+        received_order: {
+          $sum: {
+            $cond: [{ $eq: ["$latestStatus.status", "รับสินค้าแล้ว"] }, 1, 0],
+          },
+        },
+        cancelled_order: {
+          $sum: {
+            $cond: [{ $eq: ["$latestStatus.status", "ยกเลิกออเดอร์"] }, 1, 0],
+          },
+        },
+      },
+    },
+  ]).then(results => {
+    // If no results, return default object with zero totals
+    if (!results.length) {
+      return [{
+        _id: dayjs(startDate).format(format_type),
+        total: 0,
+        count: 0,
+        total_basecost: 0,
+        total_costprice: 0,
+        total_price: 0,
+        total_profit: 0,
+        total_profit_partner: 0,
+        total_profit_tossagun: 0,
+        prepared_order: 0,
+        delivered_order: 0,
+        received_order: 0,
+        cancelled_order: 0,
+      }];
+    }
+    return results;
+  });
+};
+
+const generateReportBack = async ({
+  rangeDate,
+  endDate,
+  partner_id,
+  format_type,
+}) => {
+  return Orderproduct.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: rangeDate, $lt: endDate },
+        "statusdetail.status": "กำลังเตรียมจัดส่ง",
+        partner_id: partner_id,
+      },
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: format_type, date: "$createdAt" } },
+        total: { $sum: "$alltotal" },
+        count: { $sum: 1 },
+      },
+    },
+  ]).then(results => {
+    if (!results.length) {
+      return [{
+        _id: dayjs(rangeDate).format(format_type),
+        total: 0,
+        count: 0,
+      }];
+    }
+    return results;
+  });
+};
+
+const generateProductReport = async ({ startDate, endDate, partner_id }) => {
+  return Orderproduct.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startDate, $lt: endDate },
+        "statusdetail.status": "กำลังเตรียมจัดส่ง",
+        partner_id: partner_id,
+      },
+    },
+    { $unwind: "$product" },
+    {
+      $group: {
+        _id: "$product.product_id",
+        product_name: { $first: "$product.product_name" },
+        count: { $sum: "$product.product_qty" },
+      },
+    },
+  ]);
+};
+
+const getDateRange = (id) => {
+  switch (id) {
+    case "day":
+      return {
+        startDate: dayjs().startOf("day").toDate(),
+        endDate: dayjs().endOf("day").toDate(),
+        rangeDate: dayjs().startOf("day").subtract(7, "day").toDate(),
+        format_type: "%Y/%m/%d",
+      };
+    case "week":
+      return {
+        startDate: dayjs().startOf("week").toDate(),
+        endDate: dayjs().endOf("week").toDate(),
+        rangeDate: dayjs().startOf("week").subtract(4, "week").toDate(),
+        format_type: "%Y/%m/%d",
+      };
+    case "month":
+      return {
+        startDate: dayjs().startOf("month").toDate(),
+        endDate: dayjs().endOf("month").toDate(),
+        rangeDate: dayjs().startOf("month").subtract(12, "month").toDate(),
+        format_type: "%Y/%m/01",
+      };
+    case "year":
+      return {
+        startDate: dayjs().startOf("year").toDate(),
+        endDate: dayjs().endOf("year").toDate(),
+        rangeDate: dayjs().startOf("year").subtract(7, "year").toDate(),
+        format_type: "%Y/01/01",
+      };
+    default:
+      throw new Error("Invalid report type");
   }
 };
 

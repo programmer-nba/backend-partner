@@ -38,4 +38,6 @@ router.put('/addslippayment/:id',orderproduct.addSlippayment);
 //ยอดขาย
 router.put('/report/:partner_id', auth.partner, orderproduct.report);
 
+router.put("/report/export/:partner_id", auth.partner, orderproduct.exportReportToExcel);
+
 module.exports = router;

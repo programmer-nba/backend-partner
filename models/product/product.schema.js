@@ -9,8 +9,9 @@ const ProductSchema = new mongoose.Schema(
     product_category:{type:String,default:""}, //หมวดหมู่สินค้า
     product_subcategory: { type: [String], default: [] }, //หมวดหมู่ย่อยสินค้า
     product_provider: {type: String,default: "normal"},
-    product_costprice:{type:Number,require:true},//ราคาต้นทุน
-    product_price:{type:Number,require:true}, //ราคาสินค้า
+    product_basecost:{type:Number,require:true},//ราคาต้นทุนจริง
+    product_costprice:{type:Number,require:true},//ราคาต้นทุน-ขาย
+    product_price:{type:Number,require:true}, //ราคาสินค้า-ฝากบนเว็บ
     product_partner_id:{type: mongoose.Schema.Types.ObjectId,ref:'partner',default:null}, //ไอดีคู่ค้า
     product_detail:{type:String,require:true}, //รายละเอียดสินค้า
     product_stock:{type:Number,require:true}, //จำนวนสินค้า
@@ -19,6 +20,7 @@ const ProductSchema = new mongoose.Schema(
     product_subimage1:{type:String,default:""}, //รูปภาพสินค้าย่อย 1
     product_subimage2:{type:String,default:""}, //รูปภาพสินค้าย่อย 2
     product_subimage3:{type:String,default:""}, //รูปภาพสินค้าย่อย 3
+    product_document:{type:String,default:""}, //รูปภาพเอกสารกำกับสินค้า
     product_package_options:{type:[{
       package_qty:{type:Number,require:true},//จำนวนสินค้าต่อแพ็คเกจ
       package_weight:{type:Number,require:true},//น้ำหนัก
