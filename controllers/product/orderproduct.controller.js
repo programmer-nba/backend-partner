@@ -237,13 +237,13 @@ module.exports.cancel = async (req, res) => {
 
 module.exports.addSlippayment = async (req, res) => {
   try {
-    let upload = multer({ storage: storage }).array("image", 20);
+    let upload = multer({ storage: storage }).array("image_slip", 20);
     upload(req, res, async function (err) {
       if (err) {
         return res.status(500).send(err);
       }
 
-      let image = ""; // ตั้งตัวแปรรูป
+      let image_slip = ""; // ตั้งตัวแปรรูป
       //ถ้ามีรูปให้ทำฟังก์ชั่นนี้ก่อน
       if (req.files) {
         const url = "/assets/image/emarket/slippayment";
@@ -253,7 +253,7 @@ module.exports.addSlippayment = async (req, res) => {
           reqFiles.push(url + file.filename);
         });
 
-        image = reqFiles[0];
+        image_slip = reqFiles[0];
 
         const order = await Orderproduct.findById(req.params.id);
         if (order.slip_payment != "") {
@@ -265,7 +265,7 @@ module.exports.addSlippayment = async (req, res) => {
           status: false,
         });
       }
-      const data = { slip_payment: image };
+      const data = { slip_payment: image_slip };
       const edit = await Orderproduct.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
@@ -351,8 +351,9 @@ exports.report = async (req, res) => {
     if (id === "custom") {
       startDate = new Date(req.body.startDate);
       endDate = new Date(req.body.endDate);
+      endDate.setHours(23, 59, 59, 999);
       rangeDate = dayjs(startDate).subtract(7, "day").toDate();
-      format_type = "%Y/%m/01";
+      format_type = "%Y/%m/%d";
     } else {
       ({ startDate, endDate, rangeDate, format_type } = getDateRange(id));
     }
@@ -362,6 +363,7 @@ exports.report = async (req, res) => {
       endDate,
       format_type,
       partner_id,
+      id,
     });
     const reportproduct = await generateProductReport({
       startDate,
@@ -373,33 +375,34 @@ exports.report = async (req, res) => {
       endDate,
       format_type,
       partner_id,
+      id,
     });
 
-    if (!reportorder.length) {
-      reportorder.push({
-        _id: dayjs(startDate).format("YYYY/MM/DD"),
-        total: 0,
-        count: 0,
-        total_basecost: 0,
-        total_costprice: 0,
-        total_price: 0,
-        total_profit: 0,
-        total_profit_partner: 0,
-        total_profit_tossagun: 0,
-        prepared_order: 0,
-        delivered_order: 0,
-        received_order: 0,
-        cancelled_order: 0,
-      });
-    }
+    // if (!reportorder.length) {
+    //   reportorder.push({
+    //     _id: dayjs(startDate).format("YYYY/MM/DD"),
+    //     total: 0,
+    //     count: 0,
+    //     total_basecost: 0,
+    //     total_costprice: 0,
+    //     total_price: 0,
+    //     total_profit: 0,
+    //     total_profit_partner: 0,
+    //     total_profit_tossagun: 0,
+    //     prepared_order: 0,
+    //     delivered_order: 0,
+    //     received_order: 0,
+    //     cancelled_order: 0,
+    //   });
+    // }
 
-    if (!reportorderback.length) {
-      reportorderback.push({
-        _id: dayjs(rangeDate).format("YYYY/MM/DD"),
-        total: 0,
-        count: 0,
-      });
-    }
+    // if (!reportorderback.length) {
+    //   reportorderback.push({
+    //     _id: dayjs(rangeDate).format("YYYY/MM/DD"),
+    //     total: 0,
+    //     count: 0,
+    //   });
+    // }
 
     res.status(200).json({
       reportorder,
@@ -419,7 +422,53 @@ const generateReport = async ({
   endDate,
   format_type,
   partner_id,
+  id,
 }) => {
+  const dateGroup =
+    id === "week"
+      ? {
+          _id: {
+            $dateToString: {
+              format: "%Y/%m/%d",
+              date: {
+                $dateTrunc: {
+                  unit: "week",
+                  date: "$createdAt",
+                  startOfWeek: "sunday",
+                },
+              },
+            },
+          },
+        }
+      : id === "custom"
+      ? {
+          _id: {
+            $concat: [
+              {
+                $dateToString: {
+                  format: "%Y/%m/%d",
+                  date: startDate,
+                },
+              },
+              " - ",
+              {
+                $dateToString: {
+                  format: "%Y/%m/%d",
+                  date: endDate,
+                },
+              },
+            ],
+          },
+        }
+      : {
+          _id: {
+            $dateToString: {
+              format: format_type,
+              date: "$createdAt",
+            },
+          },
+        };
+
   return Orderproduct.aggregate([
     {
       $match: {
@@ -500,7 +549,7 @@ const generateReport = async ({
     },
     {
       $group: {
-        _id: { $dateToString: { format: format_type, date: "$createdAt" } },
+        ...dateGroup,
         total: { $sum: "$orderTotal" },
         count: { $sum: 1 },
         total_basecost: { $sum: "$total_basecost" },
@@ -535,24 +584,27 @@ const generateReport = async ({
         },
       },
     },
-  ]).then(results => {
-    // If no results, return default object with zero totals
+  ]).then((results) => {
     if (!results.length) {
-      return [{
-        _id: dayjs(startDate).format(format_type),
-        total: 0,
-        count: 0,
-        total_basecost: 0,
-        total_costprice: 0,
-        total_price: 0,
-        total_profit: 0,
-        total_profit_partner: 0,
-        total_profit_tossagun: 0,
-        prepared_order: 0,
-        delivered_order: 0,
-        received_order: 0,
-        cancelled_order: 0,
-      }];
+      return [
+        {
+          _id: id === "custom"
+            ? `${dayjs(startDate).format("YYYY/MM/DD")} - ${dayjs(endDate).format("YYYY/MM/DD")}`
+            : dayjs(startDate).format("YYYY/MM/DD"),
+          total: 0,
+          count: 0,
+          total_basecost: 0,
+          total_costprice: 0,
+          total_price: 0,
+          total_profit: 0,
+          total_profit_partner: 0,
+          total_profit_tossagun: 0,
+          prepared_order: 0,
+          delivered_order: 0,
+          received_order: 0,
+          cancelled_order: 0,
+        },
+      ];
     }
     return results;
   });
@@ -563,7 +615,42 @@ const generateReportBack = async ({
   endDate,
   partner_id,
   format_type,
+  id,
 }) => {
+  const dateGroup =
+    id === "week"
+      ? {
+          _id: {
+            $dateToString: {
+              format: "%Y/%m/%d",
+              date: {
+                $dateTrunc: {
+                  unit: "week",
+                  date: "$createdAt",
+                  startOfWeek: "sunday",
+                },
+              },
+            },
+          },
+        }
+      : id === "custom"
+      ? {
+          _id: {
+            $dateToString: {
+              format: "%Y/%m/%d",
+              date: "$createdAt",
+            },
+          },
+        }
+      : {
+          _id: {
+            $dateToString: {
+              format: format_type,
+              date: "$createdAt",
+            },
+          },
+        };
+
   return Orderproduct.aggregate([
     {
       $match: {
@@ -574,18 +661,22 @@ const generateReportBack = async ({
     },
     {
       $group: {
-        _id: { $dateToString: { format: format_type, date: "$createdAt" } },
+        ...dateGroup,
         total: { $sum: "$alltotal" },
         count: { $sum: 1 },
       },
     },
-  ]).then(results => {
+  ]).then((results) => {
     if (!results.length) {
-      return [{
-        _id: dayjs(rangeDate).format(format_type),
-        total: 0,
-        count: 0,
-      }];
+      return [
+        {
+          _id: dayjs(rangeDate).format(
+            format_type === "week" ? "YYYY/MM/DD" : format_type
+          ),
+          total: 0,
+          count: 0,
+        },
+      ];
     }
     return results;
   });
