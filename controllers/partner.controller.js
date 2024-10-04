@@ -30,13 +30,13 @@ module.exports.register = async (req, res) => {
     });
     const add = await data.save();
     // ส่ง request ไปยัง API อื่นๆ โดยให้ url, method, headers และ data ตามที่ต้องการ
-    if(add){
+    if (add) {
       return res.status(200).send({
         status: true,
         message: "คุณได้สร้างไอดี Partner เรียบร้อย",
         data: add,
       });
-    }else{
+    } else {
       return res.status(200).send({
         status: false,
         message: "ไม่สามารถสร้างไอดี Partner ได้",
@@ -312,7 +312,7 @@ module.exports.edit = async (req, res) => {
 
     const data = {
       username: req.body.username,
-      password:req.body.password != undefined && req.body.password != ""? bcrypt.hashSync(req.body.password, 10): partner.password,
+      password: req.body.password != undefined && req.body.password != "" ? bcrypt.hashSync(req.body.password, 10) : partner.password,
       antecedent: req.body.antecedent,
       partner_name: req.body.partner_name,
       partner_phone: req.body.partner_phone,
@@ -332,7 +332,7 @@ module.exports.edit = async (req, res) => {
       partner_company_province: req.body.partner_company_province, //จังหวัด
       partner_company_postcode: req.body.partner_company_postcode, //รหัสไปรษณีย์
       partner_company_phone: req.body.partner_company_phone,
-      partner_company_email : req.body.partner_company_email,
+      partner_company_email: req.body.partner_company_email,
     };
     const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
       new: true,
@@ -375,12 +375,12 @@ module.exports.edit = async (req, res) => {
     //       },
     //     }
     //   );
-      if(edit){
-        return res.status(200).send({ status: true, data: edit,message: "แก้ไขข้อมูลสำเร็จ" });
-      }else{
-        return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
-      }
-    
+    if (edit) {
+      return res.status(200).send({ status: true, data: edit, message: "แก้ไขข้อมูลสำเร็จ" });
+    } else {
+      return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+    }
+
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
@@ -392,7 +392,7 @@ module.exports.accept = async (req, res) => {
     if (!partner) {
       return res.status(404).send({ status: false, message: "ไม่มีข้อมูล" });
     }
-   
+
     const status_detail = {
       status: "อนุมัติแล้ว",
       date: Date.now(),
@@ -402,7 +402,7 @@ module.exports.accept = async (req, res) => {
 
     const edit = await Partner.findByIdAndUpdate(
       req.params.id,
-      { status_appover: "อนุมัติแล้ว" ,status_detail:status_detail},
+      { status_appover: "อนุมัติแล้ว", status_detail: status_detail },
       { new: true }
     );
     return res
@@ -459,13 +459,13 @@ const deleteimage = (filePath) => {
 const uploadidcard = path.join(__dirname, '../assets/image/idcard');
 fs.mkdirSync(uploadidcard, { recursive: true });
 const storageidcard = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadidcard);
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname);
-        console.log(file.originalname);
-    },
+  destination: function (req, file, cb) {
+    cb(null, uploadidcard);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+    console.log(file.originalname);
+  },
 });
 
 // บัตรประจำตัวประชาชน
@@ -492,7 +492,7 @@ module.exports.iden = async (req, res) => {
       const data = {
         partner_iden: image,
       };
-      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {new: true,});
+      const edit = await Partner.findByIdAndUpdate(req.params.id, data, { new: true, });
       if (edit) {
         return res.status(200).send({
           status: true,
@@ -513,15 +513,15 @@ module.exports.iden = async (req, res) => {
 
 // ตั้งค่า Multer ของ เอกสารที่เกี่ยวข้องกับบริษัท
 const uploadcompany = path.join(__dirname, '../assets/image/document');
-fs.mkdirSync(uploadcompany , { recursive: true });
+fs.mkdirSync(uploadcompany, { recursive: true });
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadcompany );
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname);
-        console.log(file.originalname);
-    },
+  destination: function (req, file, cb) {
+    cb(null, uploadcompany);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+    console.log(file.originalname);
+  },
 });
 
 
@@ -547,8 +547,8 @@ module.exports.filecompany = async (req, res) => {
         image = reqFiles[0];
 
         const partner = await Partner.findOne({ _id: req.params.id });
-        if (partner.filecompany !='') {
-          
+        if (partner.filecompany != '') {
+
           deleteimage(partner.filecompany)
         }
       }
@@ -577,140 +577,39 @@ module.exports.filecompany = async (req, res) => {
 };
 
 module.exports.filecompany2 = async (req, res) => {
- try{
-  let upload = multer({ storage: storage }).array("image", 20);
-  upload(req, res, async function (err) {
-    if (err) {
-      return res.status(500).send(err);
-    }
-
-    let image = ''; // ตัวแปรเก็บเส้นทางของรูปภาพ
-
-    if (req.files) {
-      const url = '/assets/image/document/';
-      const reqFiles = [];
-
-      req.files.forEach(file => {
-        reqFiles.push(url + file.filename);
-      });
-
-      image = reqFiles[0];
-
-      const partner = await Partner.findOne({ _id: req.params.id });
-      if (partner.filecompany2 !='') {
-        deleteimage(partner.filecompany2)
-      }
-    }
-
-    const data = {
-      filecompany2: image,
-    };
-
-    const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
-      new: true,
-    });
-
-    if (edit) {
-      return res.status(200).send({
-        status: true,
-        message: 'คุณได้รูปภาพเรียบร้อยแล้ว',
-        data: edit,
-      });
-    } else {
-      return res.status(200).send({ status: false, message: 'ไม่สามารถแก้ไขข้อมูลได้' });
-    }
-  });
-  } catch (error) {
-    return res.status(500).send({ status: false, error: error.message });
-  }
-};
-
-module.exports.filecompany3 = async (req, res) => {
   try {
-  
-      let upload = multer({ storage: storage }).array("image", 20);
-      upload(req, res, async function (err) {
-        if (err) {
-          return res.status(500).send(err);
-        }
-    
-        let image = ''; // ตัวแปรเก็บเส้นทางของรูปภาพ
-    
-        if (req.files) {
-          const url = '/assets/image/document/';
-          const reqFiles = [];
-    
-          req.files.forEach(file => {
-            reqFiles.push(url + file.filename);
-          });
-    
-          image = reqFiles[0];
-    
-          const partner = await Partner.findOne({ _id: req.params.id });
-          if (partner.filecompany3 != '') {
-            deleteimage(partner.filecompany3)
-          }
-        }
-    
-        const data = {
-          filecompany3: image,
-        };
-        console.log(data);
-    
-        const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
-          new: true,
-        });
-    
-        if (edit) {
-          return res.status(200).send({
-            status: true,
-            message: 'คุณได้รูปภาพเรียบร้อยแล้ว',
-            data: edit,
-          });
-        } else {
-          return res.status(200).send({ status: false, message: 'ไม่สามารถแก้ไขข้อมูลได้' });
-        }
-      });
-  } catch (error) {
-    return res.status(500).send({ status: false, error: error.message });
-  }
-};
-
-module.exports.filecompany4 = async (req, res) => {
-  try {
-  
     let upload = multer({ storage: storage }).array("image", 20);
     upload(req, res, async function (err) {
       if (err) {
         return res.status(500).send(err);
       }
-  
+
       let image = ''; // ตัวแปรเก็บเส้นทางของรูปภาพ
-  
+
       if (req.files) {
         const url = '/assets/image/document/';
         const reqFiles = [];
-  
+
         req.files.forEach(file => {
           reqFiles.push(url + file.filename);
         });
-  
+
         image = reqFiles[0];
-  
+
         const partner = await Partner.findOne({ _id: req.params.id });
-        if (partner.filecompany4 !='') {
-          deleteimage(partner.filecompany4)
+        if (partner.filecompany2 != '') {
+          deleteimage(partner.filecompany2)
         }
       }
-  
+
       const data = {
-        filecompany4: image,
+        filecompany2: image,
       };
-  
+
       const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
-  
+
       if (edit) {
         return res.status(200).send({
           status: true,
@@ -721,9 +620,110 @@ module.exports.filecompany4 = async (req, res) => {
         return res.status(200).send({ status: false, message: 'ไม่สามารถแก้ไขข้อมูลได้' });
       }
     });
-} catch (error) {
-  return res.status(500).send({ status: false, error: error.message });
-}
+  } catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
+};
+
+module.exports.filecompany3 = async (req, res) => {
+  try {
+
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+      if (err) {
+        return res.status(500).send(err);
+      }
+
+      let image = ''; // ตัวแปรเก็บเส้นทางของรูปภาพ
+
+      if (req.files) {
+        const url = '/assets/image/document/';
+        const reqFiles = [];
+
+        req.files.forEach(file => {
+          reqFiles.push(url + file.filename);
+        });
+
+        image = reqFiles[0];
+
+        const partner = await Partner.findOne({ _id: req.params.id });
+        if (partner.filecompany3 != '') {
+          deleteimage(partner.filecompany3)
+        }
+      }
+
+      const data = {
+        filecompany3: image,
+      };
+      console.log(data);
+
+      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
+        new: true,
+      });
+
+      if (edit) {
+        return res.status(200).send({
+          status: true,
+          message: 'คุณได้รูปภาพเรียบร้อยแล้ว',
+          data: edit,
+        });
+      } else {
+        return res.status(200).send({ status: false, message: 'ไม่สามารถแก้ไขข้อมูลได้' });
+      }
+    });
+  } catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
+};
+
+module.exports.filecompany4 = async (req, res) => {
+  try {
+
+    let upload = multer({ storage: storage }).array("image", 20);
+    upload(req, res, async function (err) {
+      if (err) {
+        return res.status(500).send(err);
+      }
+
+      let image = ''; // ตัวแปรเก็บเส้นทางของรูปภาพ
+
+      if (req.files) {
+        const url = '/assets/image/document/';
+        const reqFiles = [];
+
+        req.files.forEach(file => {
+          reqFiles.push(url + file.filename);
+        });
+
+        image = reqFiles[0];
+
+        const partner = await Partner.findOne({ _id: req.params.id });
+        if (partner.filecompany4 != '') {
+          deleteimage(partner.filecompany4)
+        }
+      }
+
+      const data = {
+        filecompany4: image,
+      };
+
+      const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
+        new: true,
+      });
+
+      if (edit) {
+        return res.status(200).send({
+          status: true,
+          message: 'คุณได้รูปภาพเรียบร้อยแล้ว',
+          data: edit,
+        });
+      } else {
+        return res.status(200).send({ status: false, message: 'ไม่สามารถแก้ไขข้อมูลได้' });
+      }
+    });
+  } catch (error) {
+    return res.status(500).send({ status: false, error: error.message });
+  }
 };
 
 
@@ -731,15 +731,15 @@ module.exports.filecompany4 = async (req, res) => {
 
 // โล้โก้
 const uploadlogo = path.join(__dirname, '../assets/image/logo');
-fs.mkdirSync(uploadcompany , { recursive: true });
+fs.mkdirSync(uploadcompany, { recursive: true });
 const storagelogo = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadcompany );
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname);
-        console.log(file.originalname);
-    },
+  destination: function (req, file, cb) {
+    cb(null, uploadcompany);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+    console.log(file.originalname);
+  },
 });
 
 // เพิ่มรูปภาพโลโก้
@@ -757,15 +757,15 @@ module.exports.logo = async (req, res) => {
       if (req.files) {
         const url = '/assets/image/logo/';
         const reqFiles = [];
-  
+
         req.files.forEach(file => {
           reqFiles.push(url + file.filename);
         });
-  
+
         image = reqFiles[0];
-  
+
         const partner = await Partner.findOne({ _id: req.params.id });
-        if (partner.logo !='') {
+        if (partner.logo != '') {
           deleteimage(partner.logo)
         }
       } else {
@@ -783,17 +783,17 @@ module.exports.logo = async (req, res) => {
       });
 
 
-        if(edit){
-          return res.status(200).send({
-            status: true,
-            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-            data: edit,
-          
-          });
-        }else{
-          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
-        }
-      
+      if (edit) {
+        return res.status(200).send({
+          status: true,
+          message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+          data: edit,
+
+        });
+      } else {
+        return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+      }
+
     });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
@@ -804,21 +804,21 @@ module.exports.logo = async (req, res) => {
 
 
 const uploadcompanyseal = path.join(__dirname, '../assets/image/companyseal');
-fs.mkdirSync(uploadcompanyseal , { recursive: true });
+fs.mkdirSync(uploadcompanyseal, { recursive: true });
 const storagescompanyseal = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadcompanyseal );
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname);
-        console.log(file.originalname);
-    },
+  destination: function (req, file, cb) {
+    cb(null, uploadcompanyseal);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+    console.log(file.originalname);
+  },
 });
 
 
 //เพิ่มตราประทับบริษัท
 module.exports.companyseal = async (req, res) => {
-  try{
+  try {
     let upload = multer({ storage: storagescompanyseal }).array("image", 20);
     upload(req, res, async function (err) {
       const reqFiles = [];
@@ -831,15 +831,15 @@ module.exports.companyseal = async (req, res) => {
       if (req.files) {
         const url = '/assets/image/companyseal/';
         const reqFiles = [];
-  
+
         req.files.forEach(file => {
           reqFiles.push(url + file.filename);
         });
-  
+
         image = reqFiles[0];
-  
+
         const partner = await Partner.findOne({ _id: req.params.id });
-        if (partner.companyseal !='') {
+        if (partner.companyseal != '') {
           deleteimage(partner.companyseal)
         }
       } else {
@@ -852,23 +852,23 @@ module.exports.companyseal = async (req, res) => {
       const data = {
         companyseal: image,
       };
-     
+
       const edit = await Partner.findByIdAndUpdate(req.params.id, data, {
         new: true,
       });
 
-        if(edit){
-          return res.status(200).send({
-            status: true,
-            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-            data: edit,
-          });
-        }else{
-          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
-        }
-      
+      if (edit) {
+        return res.status(200).send({
+          status: true,
+          message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+          data: edit,
+        });
+      } else {
+        return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+      }
+
     });
-  }catch(error){
+  } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
 };
@@ -878,19 +878,19 @@ module.exports.companyseal = async (req, res) => {
 const uploadsignature = path.join(__dirname, '../assets/image/signature');
 fs.mkdirSync(uploadsignature, { recursive: true });
 const storagesignature = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadsignature );
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname);
-        console.log(file.originalname);
-    },
+  destination: function (req, file, cb) {
+    cb(null, uploadsignature);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+    console.log(file.originalname);
+  },
 });
 
 // เพิ่มรูปภาพลายเซ็นต์
 module.exports.addsignature = async (req, res) => {
   try {
-    let upload = multer({ storage: storagesignature  }).array("image", 20);
+    let upload = multer({ storage: storagesignature }).array("image", 20);
     upload(req, res, async function (err) {
       const reqFiles = [];
       const result = [];
@@ -902,14 +902,14 @@ module.exports.addsignature = async (req, res) => {
       if (req.files) {
         const url = '/assets/image/signature/';
         const reqFiles = [];
-  
+
         req.files.forEach(file => {
           reqFiles.push(url + file.filename);
         });
-  
+
         image = reqFiles[0];
-  
-     
+
+
       } else {
         return res.json({
           message: "not found any files",
@@ -934,18 +934,18 @@ module.exports.addsignature = async (req, res) => {
         { signature: partner.signature },
         { new: true }
       );
-    
-        if(edit){
-          return res.status(200).send({
-            status: true,
-            message: "คุณได้รูปภาพเรียบร้อยแล้ว",
-            data: edit,
-           
-          });
-        }else{
-          return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
-        }
-      
+
+      if (edit) {
+        return res.status(200).send({
+          status: true,
+          message: "คุณได้รูปภาพเรียบร้อยแล้ว",
+          data: edit,
+
+        });
+      } else {
+        return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+      }
+
     });
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
@@ -976,8 +976,7 @@ module.exports.editsignature = async (req, res) => {
         //ไฟล์รูป
         image = reqFiles[0];
         const partner = await Partner.findById(req.params.id);
-        if(partner.signature !='')
-        {
+        if (partner.signature != '') {
           const deletefile = await deleteFile(partner.signature);
         }
       }
@@ -1013,14 +1012,14 @@ module.exports.editsignature = async (req, res) => {
       //       },
       //     }
       //   );
-      if(edit){
+      if (edit) {
         return res.status(200).send({
           status: true,
           message: "คุณได้รูปภาพเรียบร้อยแล้ว",
           data: edit,
-      
+
         });
-      }else{
+      } else {
         return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
       }
     });
@@ -1039,13 +1038,13 @@ module.exports.deletesignature = async (req, res) => {
       res.status(400).send({ status: false, message: "ไม่มีข้อมูล" });
     }
 
-  partner.signature.forEach((item) => {
-    if (item._id == signatureid) {
-      if (item.sign != '') {
-        deleteimage(item.sign)
+    partner.signature.forEach((item) => {
+      if (item._id == signatureid) {
+        if (item.sign != '') {
+          deleteimage(item.sign)
+        }
       }
-    }
-  }); 
+    });
     partner.signature = partner.signature.filter(
       (item) => item._id != signatureid
     );
@@ -1056,16 +1055,16 @@ module.exports.deletesignature = async (req, res) => {
       { signature: partner.signature },
       { new: true }
     );
-  
-      if(edit){
-        return res.status(200).send({
-          status: true,
-          message: "คุณได้ลบภาพลายเซ็นแล้ว",
-          data: edit,
-        });
-      }else{
-        return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
-      }
+
+    if (edit) {
+      return res.status(200).send({
+        status: true,
+        message: "คุณได้ลบภาพลายเซ็นแล้ว",
+        data: edit,
+      });
+    } else {
+      return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
+    }
   } catch (error) {
     return res.status(500).send({ status: false, error: error.message });
   }
@@ -1094,13 +1093,13 @@ module.exports.WaitForApproval = async (req, res) => {
     //     },
     //   }
     // );
-    if(updateStatus){
+    if (updateStatus) {
       return res.status(200).send({
         status: true,
         message: "เพิ่มข้อมูล รอ อนุมัติสำเร็จ",
         data: updateStatus,
       });
-    }else{
+    } else {
       return res.status(200).send({ status: false, message: "ไม่สามารถแก้ไขข้อมูลได้" });
     }
   } catch (error) {
@@ -1121,7 +1120,7 @@ module.exports.sendtypecontract = async (req, res) => {
     const data = {
       contract_type: req.body.contract_type,
     }
-    const edit = await Partner.findByIdAndUpdate(id,data,{new:true});
+    const edit = await Partner.findByIdAndUpdate(id, data, { new: true });
     return res.status(200).send({
       status: true,
       message: "คุณได้รูปภาพเรียบร้อยแล้ว",
