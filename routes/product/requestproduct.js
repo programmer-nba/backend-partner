@@ -43,6 +43,8 @@ router.put('/subimage2/:id', userAuth.partner, Requestproduct.addsubimgproduct2)
 //เพิ่มรูปสินค้าย่อย3
 router.put('/subimage3/:id', userAuth.partner, Requestproduct.addsubimgproduct3);
 
+router.put('/imagedoc/:id', userAuth.partner, Requestproduct.addimagedoc);
+
 //แก้ไขข้อมูลสินค้า ให้ office
 router.put('/editproductbyoffice/:id',userAuth.public,Requestproduct.update);
 

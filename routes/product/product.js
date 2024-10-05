@@ -37,6 +37,8 @@ router.put('/subimage2/:id', userAuth.partner, product.addsubimgproduct2);
 //เพิ่มรูปสินค้าย่อย3
 router.put('/subimage3/:id', userAuth.partner, product.addsubimgproduct3);
 
+router.put('/imagedoc/:id', userAuth.partner, product.addimagedoc);
+
 // สร้าง token เพื่อต่อด้านนอก
 router.post('/getpublictoken',product.getpublictoken);
 // ดึงข้อมูลสินค้าทั้งหมด ที่เปิดขาย

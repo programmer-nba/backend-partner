@@ -20,7 +20,7 @@ const ProductSchema = new mongoose.Schema(
     product_subimage1:{type:String,default:""}, //รูปภาพสินค้าย่อย 1
     product_subimage2:{type:String,default:""}, //รูปภาพสินค้าย่อย 2
     product_subimage3:{type:String,default:""}, //รูปภาพสินค้าย่อย 3
-    product_document:{type:String,default:""}, //รูปภาพเอกสารกำกับสินค้า
+    product_imagedoc:{type:String,default:""}, //รูปภาพเอกสารกำกับสินค้า
     product_package_options:{type:[{
       package_qty:{type:Number,require:true},//จำนวนสินค้าต่อแพ็คเกจ
       package_weight:{type:Number,require:true},//น้ำหนัก

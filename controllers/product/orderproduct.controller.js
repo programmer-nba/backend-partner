@@ -670,9 +670,7 @@ const generateReportBack = async ({
     if (!results.length) {
       return [
         {
-          _id: dayjs(rangeDate).format(
-            format_type === "week" ? "YYYY/MM/DD" : format_type
-          ),
+          _id: dayjs(rangeDate).format("YYYY/MM/DD"),
           total: 0,
           count: 0,
         },
