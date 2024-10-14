@@ -163,6 +163,30 @@ module.exports.delete = async (req, res) => {
   }
 };
 
+// ใส่ tracking
+module.exports.updateTracking = async (req, res) => {
+  try {
+    const { orderId, productId, packageIndex, trackingNumber } = req.body;
+
+    const orderproduct = await Orderproduct.findById(orderId);
+    if (!orderproduct) {
+      return res.status(404).json({ message: "ไม่พบ order", status: false });
+    }
+
+    const deliveryDetail = orderproduct.delivery_detail.find(detail => detail.product_id.toString() === productId);
+    if (!deliveryDetail || !deliveryDetail.packages[packageIndex]) {
+      return res.status(400).json({ message: "ไม่พบ package", status: false });
+    }
+
+    deliveryDetail.packages[packageIndex].tracking = trackingNumber;
+
+    const updatedOrderProduct = await orderproduct.save();
+    return res.status(200).json({ message: "อัปเดต tracking สำเร็จ", status: true, data: updatedOrderProduct });
+  } catch (error) {
+    return res.status(500).json({ message: error.message, status: false });
+  }
+};
+
 // จัดส่งออเดอร์แล้ว
 module.exports.delivery = async (req, res) => {
   try {

@@ -6,14 +6,14 @@ const OrderproductSchema = new mongoose.Schema(
     orderref:{type:String,require:true}, //เลขอ้างอิง order
     partner_id:{type: mongoose.Schema.Types.ObjectId,ref:'partner',default:null}, //ไอดี partner
     partner_name:{type:String,require:false,default:""}, //ชื่อ partner
-    customer_id :{type: String,require:false,default:""}, //ไอดี ลูกค้า
-    customer_name:{type:String,require:false,default:""}, //ชื่อลูกค้า
-    customer_address:{type:String,require:false,default:""}, //ที่อยู่ลูกค้า
-    customer_tambon :{type:String,require:false,default:""}, //ตำบลลูกค้า
-    customer_amphure :{type:String,require:false,default:""}, //อำเภอลูกค้า
-    customer_province:{type:String,require:false,default:""}, //จังหวัดลูกค้า
-    customer_zipcode:{type:String,require:false,default:""}, //รหัสไปรษณีย์ลูกค้า
-    customer_telephone :{type:String,require:false,default:""}, //เบอร์โทรลูกค้า
+    customer_id :{type: String,require:false,default:""}, //ไอดี ลูกค้าx
+    customer_name:{type:String,require:false,default:""}, //ชื่อลูกค้าx
+    customer_address:{type:String,require:false,default:""}, //ที่อยู่ลูกค้าx
+    customer_tambon :{type:String,require:false,default:""}, //ตำบลลูกค้าx
+    customer_amphure :{type:String,require:false,default:""}, //อำเภอลูกค้าx
+    customer_province:{type:String,require:false,default:""}, //จังหวัดลูกค้าx
+    customer_zipcode:{type:String,require:false,default:""}, //รหัสไปรษณีย์ลูกค้าx
+    customer_telephone :{type:String,require:false,default:""}, //เบอร์โทรลูกค้าx
     product:{type:[{
         product_id:{type: mongoose.Schema.Types.ObjectId,ref:'product',default:null}, //ไอดีสินค้า
         product_name:{type:String,require:false,default:""}, //ชื่อสินค้า
@@ -27,15 +27,21 @@ const OrderproductSchema = new mongoose.Schema(
     }],require:false,default:[]}, //สินค้า
 
     delivery_detail:{type:[{
-      product_id:{type: mongoose.Schema.Types.ObjectId,ref:'product',default:null}, //ไอดีสินค้า
-      delivery_company:{type:String,require:false,default:""},//ชื่อขนส่ง
-      package_qty:{type:Number,require:false,default:0},//จำนวนสินค้า
-      package_weight:{type:Number,require:false,default:0},//น้ำหนักพัสดุ
-      package_width:{type:Number,require:false,default:0},//ความกว้างพัสดุ
-      package_length:{type:Number,require:false,default:0},//ความยาวพัสดุ
-      package_height:{type:Number,require:false,default:0},//ความสูงพัสดุ
-      delivery_price:{type:Number,require:false,default:0},//ค่าส่ง
-      tracking:{type:String,require:false,default:""}, //tracking
+      product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'product', default: null }, // Product ID
+          packages: [
+            {
+              package_qty: { type: Number, required: false, default: 0 }, // Quantity of items in package
+              package_weight: { type: Number, required: false, default: 0 }, // Package weight
+              package_width: { type: Number, required: false, default: 0 }, // Package width
+              package_length: { type: Number, required: false, default: 0 }, // Package length
+              package_height: { type: Number, required: false, default: 0 }, // Package height
+              delivery_company: { type: String, required: false, default: "" }, // Delivery company name
+              delivery_price: { type: Number, required: false, default: 0 }, // Delivery price
+              delivery_totalprice: { type: Number, required: false, default: 0 }, // Delivery price
+              amount: { type: Number, required: false, default: 0 }, // Amount of the package (you can rename this if needed)
+              tracking: { type: String, required: false, default: "" }, // Tracking number
+            }
+          ],
     }],require:false,default:[]
     },
     slip_payment:{type:String,default:""},
