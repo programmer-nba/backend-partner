@@ -23,7 +23,10 @@ router.put('/:id',orderproduct.update);
 //ลบออเดอร์ e-market ตามไอดี
 router.delete('/:id',orderproduct.delete);
 
-// จัดส่งออเดอร์แล้ว
+// จัดส่งออเดอร์ตามไอดีแล้ว
+router.put('/updatetracking/:id',orderproduct.updateTracking);
+
+// จัดส่งออเดอร์ตามสถานะแล้ว
 router.put('/delivery/:id',orderproduct.delivery);
 
 // รับสินค้าแล้ว

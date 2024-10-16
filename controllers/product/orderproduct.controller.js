@@ -166,19 +166,19 @@ module.exports.delete = async (req, res) => {
 // ใส่ tracking
 module.exports.updateTracking = async (req, res) => {
   try {
-    const { orderId, productId, packageIndex, trackingNumber } = req.body;
+    const { product_id, package_index, tracking_number } = req.body;
 
-    const orderproduct = await Orderproduct.findById(orderId);
+    const orderproduct = await Orderproduct.findById(req.params.id);
     if (!orderproduct) {
       return res.status(404).json({ message: "ไม่พบ order", status: false });
     }
 
-    const deliveryDetail = orderproduct.delivery_detail.find(detail => detail.product_id.toString() === productId);
-    if (!deliveryDetail || !deliveryDetail.packages[packageIndex]) {
+    const deliveryDetail = orderproduct.delivery_detail.find(detail => detail.product_id.toString() === product_id);
+    if (!deliveryDetail || !deliveryDetail.packages[package_index]) {
       return res.status(400).json({ message: "ไม่พบ package", status: false });
     }
 
-    deliveryDetail.packages[packageIndex].tracking = trackingNumber;
+    deliveryDetail.packages[package_index].tracking = tracking_number;
 
     const updatedOrderProduct = await orderproduct.save();
     return res.status(200).json({ message: "อัปเดต tracking สำเร็จ", status: true, data: updatedOrderProduct });
